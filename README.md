@@ -9,8 +9,6 @@ A comprehensive web application to help students track their learning progress, 
 - **User Authentication**: Secure JWT-based login/registration system
 - **Progress Tracking**: Track video completion with day-wise organization
 - **Real-time Updates**: Progress saved instantly to MongoDB database
-- **Private Video Handling**: Automatically detects unavailable videos
-- **Dark/Light Mode**: Theme toggle with persistent preferences
 
 ### 🚧 **Coming Soon**
 - **Dynamic Scheduler**: Adaptive study session planning
