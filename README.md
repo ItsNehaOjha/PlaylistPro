@@ -1,4 +1,4 @@
-# learnLog
+# SkillLog
 
 A comprehensive web application to help students track their learning progress, manage multiple YouTube playlists, scheduling, and more.
 
@@ -40,7 +40,7 @@ A comprehensive web application to help students track their learning progress, 
 ## 📁 Project Structure
 
 ```
-learnLog/
+skillLog/
 ├── backend/                 # Node.js + Express backend
 │   ├── config/             # Database configuration
 │   ├── controllers/        # Route controllers (auth, playlists)
@@ -73,7 +73,7 @@ learnLog/
 ### 1. Clone the repository
 ```bash
 git clone <repository-url>
-cd learnLog
+cd skillLog
 ```
 
 ### 2. Backend Setup
