@@ -85,9 +85,9 @@ studySessionSchema.virtual('totalDays').get(function() {
 
 // Virtual for calculating progress percentage
 studySessionSchema.virtual('progressPercentage').get(function() {
-  const totalDays = this.totalDays;
-  const completedDaysCount = this.completedDays.length;
-  return Math.round((completedDaysCount / totalDays) * 100);
+  // This will be calculated dynamically based on playlist completion
+  // For now, return 0 to indicate it needs to be calculated from playlist data
+  return 0;
 });
 
 // Method to calculate daily allocation

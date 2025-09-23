@@ -39,7 +39,8 @@ import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   PlayArrow as PlayIcon,
-  Pause as PauseIcon
+  Pause as PauseIcon,
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -95,6 +96,8 @@ const DynamicScheduler = () => {
     }
   }, [token, user]);
 
+
+
   const fetchPlaylists = async () => {
     try {
       setPlaylistsLoading(true);
@@ -126,6 +129,24 @@ const DynamicScheduler = () => {
       setLoading(false);
     }
   };
+
+  // Function to refresh sessions data (can be called from other components)
+  const refreshSessions = async () => {
+    await fetchSessions();
+  };
+
+  // Expose refresh function globally for other components to use
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.refreshSchedulerData = refreshSessions;
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.refreshSchedulerData;
+      }
+    };
+  }, []);
 
   const handleCreateSession = () => {
     setFormData({
@@ -364,6 +385,23 @@ const DynamicScheduler = () => {
           </Button>
         </Box>
         
+        <Button
+          variant="outlined"
+          onClick={fetchSessions}
+          disabled={loading}
+          startIcon={<RefreshIcon />}
+          sx={{
+            borderColor: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.7)',
+            '&:hover': {
+              borderColor: 'rgba(255,255,255,0.5)',
+              backgroundColor: 'rgba(255,255,255,0.05)',
+            }
+          }}
+        >
+          Refresh Progress
+        </Button>
+        
         <Fab
           color="primary"
           aria-label="add"
@@ -535,11 +573,15 @@ const DynamicScheduler = () => {
                           {session.playlistId?.title}
                         </Typography>
                         <Chip
-                          icon={getStatusIcon(session.status)}
-                          label={session.status}
-                          color={getStatusColor(session.status)}
+                          icon={session.progressPercentage === 100 ? <CheckCircleIcon /> : getStatusIcon(session.status)}
+                          label={session.progressPercentage === 100 ? 'completed' : session.status}
+                          color={session.progressPercentage === 100 ? 'success' : getStatusColor(session.status)}
                           size="small"
-                          sx={{ mb: 2 }}
+                          sx={{ 
+                            mb: 2,
+                            backgroundColor: session.progressPercentage === 100 ? '#31c48d' : undefined,
+                            color: session.progressPercentage === 100 ? '#FFFFFF' : undefined
+                          }}
                         />
                       </Box>
                       <Box>
@@ -568,9 +610,17 @@ const DynamicScheduler = () => {
                         <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                           Progress
                         </Typography>
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                          {session.progressPercentage}%
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {session.progressPercentage === 100 && (
+                            <CheckCircleIcon sx={{ color: '#31c48d', fontSize: '16px' }} />
+                          )}
+                          <Typography variant="body2" sx={{ 
+                            color: session.progressPercentage === 100 ? '#31c48d' : 'rgba(255,255,255,0.6)',
+                            fontWeight: session.progressPercentage === 100 ? 600 : 400
+                          }}>
+                            {session.progressPercentage}%
+                          </Typography>
+                        </Box>
                       </Box>
                       <LinearProgress
                         variant="determinate"
@@ -580,7 +630,7 @@ const DynamicScheduler = () => {
                           borderRadius: 4,
                           backgroundColor: 'rgba(255,255,255,0.1)',
                           '& .MuiLinearProgress-bar': {
-                            backgroundColor: 'rgb(48, 137, 81)',
+                            backgroundColor: session.progressPercentage === 100 ? '#31c48d' : 'rgb(48, 137, 81)',
                             borderRadius: 4
                           }
                         }}

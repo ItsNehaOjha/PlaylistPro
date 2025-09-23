@@ -70,13 +70,36 @@ const getUserStudySessions = async (req, res) => {
     }
 
     const sessions = await StudySession.find({ userId })
-      .populate('playlistId', 'title sourceType availableVideos manualTotalVideos')
+      .populate('playlistId', 'title sourceType availableVideos manualTotalVideos completedVideos')
       .sort({ createdAt: -1 });
+
+    // Calculate progress percentage for each session based on playlist completion
+    const sessionsWithProgress = sessions.map(session => {
+      const playlist = session.playlistId;
+      let progressPercentage = 0;
+      
+      if (playlist) {
+        const totalVideos = playlist.sourceType === 'manual' 
+          ? playlist.manualTotalVideos 
+          : playlist.availableVideos;
+        
+        const completedVideos = playlist.completedVideos ? playlist.completedVideos.length : 0;
+        
+        if (totalVideos > 0) {
+          progressPercentage = Math.round((completedVideos / totalVideos) * 100);
+        }
+      }
+      
+      return {
+        ...session.toObject(),
+        progressPercentage
+      };
+    });
 
     res.json({
       success: true,
-      data: sessions,
-      count: sessions.length
+      data: sessionsWithProgress,
+      count: sessionsWithProgress.length
     });
   } catch (error) {
     console.error('Error fetching study sessions:', error);

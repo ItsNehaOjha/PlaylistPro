@@ -172,6 +172,11 @@ const MultiPlaylistDashboard = () => {
           playlist._id === playlistId ? response.data : playlist
         )
       );
+      
+      // Refresh scheduler data if available
+      if (typeof window !== 'undefined' && window.refreshSchedulerData) {
+        setTimeout(() => window.refreshSchedulerData(), 500); // Small delay to ensure playlist update is processed
+      }
     } catch (error) {
       console.error('Error updating video:', error);
       toast.error('Failed to update video progress');
@@ -191,6 +196,11 @@ const MultiPlaylistDashboard = () => {
         )
       );
       setEditingPlaylist(null);
+      
+      // Refresh scheduler data if available
+      if (typeof window !== 'undefined' && window.refreshSchedulerData) {
+        setTimeout(() => window.refreshSchedulerData(), 500);
+      }
     } catch (error) {
       console.error('Error updating manual total:', error);
       toast.error('Failed to update total videos');
@@ -321,6 +331,11 @@ const MultiPlaylistDashboard = () => {
       }
       
       console.log('All videos in day', dayNumber, 'marked as completed');
+      
+      // Refresh scheduler data after bulk update
+      if (typeof window !== 'undefined' && window.refreshSchedulerData) {
+        setTimeout(() => window.refreshSchedulerData(), 1000);
+      }
     } catch (error) {
       console.error('Error checking all videos:', error);
       toast.error('Failed to check all videos in day');
@@ -354,6 +369,11 @@ const MultiPlaylistDashboard = () => {
       }
       
       console.log('All videos in day', dayNumber, 'marked as incomplete');
+      
+      // Refresh scheduler data after bulk update
+      if (typeof window !== 'undefined' && window.refreshSchedulerData) {
+        setTimeout(() => window.refreshSchedulerData(), 1000);
+      }
     } catch (error) {
       console.error('Error unchecking all videos:', error);
       toast.error('Failed to uncheck all videos in day');
@@ -654,6 +674,8 @@ const MultiPlaylistDashboard = () => {
                       const dayCompletedVideos = dayVideos.filter(v => v.completed && !v.isPrivate).length;
                       const dayTotalVideos = dayVideos.filter(v => !v.isPrivate).length;
                       const isDayCompleted = dayCompletedVideos === dayTotalVideos && dayTotalVideos > 0;
+                      
+
                       const isExpanded = expandedDays[playlist._id]?.[dayNumber] || false;
 
                       return (
@@ -701,7 +723,7 @@ const MultiPlaylistDashboard = () => {
                               {/* Progress Bar */}
                               <LinearProgress
                                 variant="determinate"
-                                value={dayTotalVideos > 0 ? (dayCompletedVideos / dayTotalVideos) * 100 : 0}
+                                value={isDayCompleted ? 100 : (dayTotalVideos > 0 ? Math.round((dayCompletedVideos / dayTotalVideos) * 100) : 0)}
                                 sx={{
                                   height: 6,
                                   borderRadius: '6px',
@@ -712,6 +734,7 @@ const MultiPlaylistDashboard = () => {
                                   }
                                 }}
                               />
+
                             </Box>
                             
                             {/* Expand/Collapse Arrow */}
