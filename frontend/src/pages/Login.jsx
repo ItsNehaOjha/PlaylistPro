@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
-import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  Alert,
-  CircularProgress,
-  Link,
-} from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import SkillLogLogo from '../components/SkillLogLogo';
+import { 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  ArrowRight, 
+  User,
+  Brain,
+  Zap,
+  Target,
+  TrendingUp,
+  Users,
+  Award,
+  PlayCircle,
+  ListMusic,
+  Calendar,
+  BarChart3
+} from 'lucide-react';
+import RobotMascot from '../components/RobotMascot';
+import BrainIcon from '../components/BrainIcon';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    name: '',
+    confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -36,10 +49,20 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const result = await login(formData.email, formData.password);
+      let result;
+      if (isSignUp) {
+        if (formData.password !== formData.confirmPassword) {
+          toast.error('Passwords do not match');
+          setLoading(false);
+          return;
+        }
+        result = await register(formData.name, formData.email, formData.password);
+      } else {
+        result = await login(formData.email, formData.password);
+      }
       
       if (result.success) {
-        toast.success('Login successful!');
+        toast.success(isSignUp ? 'Registration successful!' : 'Login successful!');
         navigate('/dashboard');
       } else {
         toast.error(result.message);
@@ -51,157 +74,571 @@ const Login = () => {
     }
   };
 
-  return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper
-          elevation={3}
-          sx={{
-            padding: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            backgroundColor: 'background.paper',
-            transition: 'all 0.3s ease-in-out',
-          }}
-        >
-          <Typography
-  component="h1"
-  variant="h4"
-  gutterBottom
-  sx={{
-    fontFamily: 'Montserrat, sans-serif',
-    fontWeight: 700,
-    color: 'text.primary',
+  
+
+  const containerStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    fontFamily: 'Inter, sans-serif'
+  };
+
+  const leftSideStyle = {
+    display: 'none',
+    width: '50%',
+    background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)',
+    position: 'relative',
+    overflow: 'hidden',
+    '@media (min-width: 1024px)': {
+      display: 'flex'
+    }
+  };
+
+  const rightSideStyle = {
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
-    gap: 1, // adds spacing between items
-    transition: 'color 0.3s ease-in-out',
-  }}
->
-  Welcome to
-  <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
-    <SkillLogLogo size="large" style={{ marginRight: 6 }} />
-   
-  </Box>
-</Typography>
-          
-            
-          <Typography 
-            variant="body2" 
-            color="text.secondary" 
-            align="center" 
-            sx={{ 
-              mb: 3,
-              fontFamily: 'Inter, sans-serif',
-              opacity: 0.7,
-              transition: 'color 0.3s ease-in-out',
-            }}
-          >
-            Sign in to continue your learning journey
-          </Typography>
+    justifyContent: 'center',
+    padding: '2rem',
+    background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+    position: 'relative'
+  };
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={formData.email}
-              onChange={handleChange}
-              type="email"
-              sx={{
-                '& .MuiInputLabel-root': {
-                  transition: 'color 0.3s ease-in-out',
-                },
-                '& .MuiInputBase-input': {
-                  transition: 'color 0.3s ease-in-out',
-                },
+  const formContainerStyle = {
+    width: '100%',
+    maxWidth: '400px',
+    position: 'relative',
+    zIndex: 10
+  };
+
+  const glassCardStyle = {
+    background: 'rgba(15, 23, 42, 0.8)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(0, 212, 255, 0.2)',
+    borderRadius: '20px',
+    padding: '2rem',
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px 12px 44px',
+    background: 'rgba(30, 41, 59, 0.6)',
+    border: '1px solid rgba(71, 85, 105, 0.5)',
+    borderRadius: '12px',
+    color: '#E2E8F0',
+    fontSize: '16px',
+    outline: 'none',
+    transition: 'all 0.3s ease',
+    '::placeholder': {
+      color: '#94A3B8'
+    }
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '14px',
+    borderRadius: '12px',
+    border: 'none',
+    fontWeight: '600',
+    fontSize: '16px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px'
+  };
+
+  const primaryButtonStyle = {
+    ...buttonStyle,
+    background: isSignUp 
+      ? 'linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%)'
+      : 'linear-gradient(135deg, #00D4FF 0%, #0EA5E9 100%)',
+    color: '#0F172A',
+    boxShadow: isSignUp 
+      ? '0 10px 20px rgba(255, 107, 53, 0.3)'
+      : '0 10px 20px rgba(0, 212, 255, 0.3)'
+  };
+
+  const toggleButtonStyle = {
+    flex: 1,
+    padding: '12px',
+    borderRadius: '10px',
+    border: 'none',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    fontSize: '14px'
+  };
+
+  return (
+    <div style={containerStyle}>
+      {/* Left Side - Features & Branding */}
+      <div style={{ ...leftSideStyle, display: window.innerWidth >= 1024 ? 'flex' : 'none' }}>
+        {/* Animated Background Elements */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.1
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '80px',
+            left: '80px',
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, #00D4FF 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            animation: 'float 6s ease-in-out infinite'
+          }}></div>
+          <div style={{
+            position: 'absolute',
+            top: '160px',
+            right: '80px',
+            width: '250px',
+            height: '250px',
+            background: 'radial-gradient(circle, #FF6B35 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            animation: 'float 6s ease-in-out infinite 2s'
+          }}></div>
+          <div style={{
+            position: 'absolute',
+            bottom: '80px',
+            left: '160px',
+            width: '200px',
+            height: '200px',
+            background: 'radial-gradient(circle, #10B981 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            animation: 'float 6s ease-in-out infinite 4s'
+          }}></div>
+        </div>
+
+        <div style={{
+          position: 'relative',
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '3rem',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          {/* Hero Section */}
+          <div style={{ marginBottom: '3rem' }}>
+            <div 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: '1.5rem',
+                cursor: 'pointer',
+                transition: 'transform 0.3s ease'
               }}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={formData.password}
-              onChange={handleChange}
-              sx={{
-                '& .MuiInputLabel-root': {
-                  transition: 'color 0.3s ease-in-out',
-                },
-                '& .MuiInputBase-input': {
-                  transition: 'color 0.3s ease-in-out',
-                },
-              }}
-            />
-            <Box sx={{ textAlign: 'right', mt: 1 }}>
-              <Link 
-                component={RouterLink} 
-                to="/forgot-password" 
-                variant="body2"
-                sx={{
-                  transition: 'color 0.3s ease-in-out',
-                  '&:hover': {
-                    color: 'primary.main',
-                  }
-                }}
-              >
-                Forgot Password?
-              </Link>
-            </Box>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ 
-                mt: 3, 
-                mb: 2,
-                transition: 'all 0.3s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: 8,
-                }
-              }}
-              disabled={loading}
+              onClick={() => navigate('/')}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              {loading ? 'Signing In...' : 'Sign In'}
-            </Button>
-            <Box sx={{ textAlign: 'center' }}>
-              <Link 
-                component={RouterLink} 
-                to="/register" 
-                variant="body2"
-                sx={{
-                  transition: 'color 0.3s ease-in-out',
-                  '&:hover': {
-                    color: 'primary.main',
+              <BrainIcon size="xl" animated={true} />
+            </div>
+            <h1 
+              style={{
+                fontSize: '3rem',
+                fontWeight: 'bold',
+                marginBottom: '1rem',
+                background: 'linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                cursor: 'pointer',
+                transition: 'transform 0.3s ease'
+              }}
+              onClick={() => navigate('/')}
+              onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+            >
+              SkillLog
+            </h1>
+            <p style={{
+              fontSize: '1.25rem',
+              color: '#CBD5E1',
+              marginBottom: '2rem',
+              maxWidth: '400px'
+            }}>
+              Your AI-powered learning companion for mastering new skills and achieving your goals
+            </p>
+            
+            {/* Stats */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1.5rem',
+              marginBottom: '2rem'
+            }}>
+             
+            </div>
+          </div>
+
+          
+        </div>
+      </div>
+
+      {/* Right Side - Login/Signup Form */}
+      <div style={rightSideStyle}>
+        {/* Floating Particles */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          overflow: 'hidden',
+          pointerEvents: 'none'
+        }}>
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                width: '4px',
+                height: '4px',
+                background: '#00D4FF',
+                borderRadius: '50%',
+                opacity: 0.3,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `float ${3 + Math.random() * 4}s ease-in-out infinite ${Math.random() * 5}s`
+              }}
+            />
+          ))}
+        </div>
+
+        <div style={formContainerStyle}>
+          <div style={glassCardStyle}>
+            {/* Form Header */}
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                color: 'white',
+                marginBottom: '0.5rem',
+                margin: 0
+              }}>
+                {isSignUp ? 'Join SkillLog' : 'Welcome Back'}
+              </h2>
+              <p style={{
+                color: '#94A3B8',
+                margin: 0
+              }}>
+                {isSignUp ? 'Start your learning journey today' : 'Continue your learning adventure'}
+              </p>
+            </div>
+
+            {/* Toggle Buttons */}
+            <div style={{
+              display: 'flex',
+              marginBottom: '2rem',
+              padding: '4px',
+              background: 'rgba(30, 41, 59, 0.5)',
+              borderRadius: '12px',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(false)}
+                style={{
+                  ...toggleButtonStyle,
+                  background: !isSignUp 
+                    ? 'linear-gradient(135deg, #00D4FF 0%, #0EA5E9 100%)'
+                    : 'transparent',
+                  color: !isSignUp ? '#0F172A' : '#94A3B8',
+                  boxShadow: !isSignUp ? '0 4px 12px rgba(0, 212, 255, 0.3)' : 'none'
+                }}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(true)}
+                style={{
+                  ...toggleButtonStyle,
+                  background: isSignUp 
+                    ? 'linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%)'
+                    : 'transparent',
+                  color: isSignUp ? '#0F172A' : '#94A3B8',
+                  boxShadow: isSignUp ? '0 4px 12px rgba(255, 107, 53, 0.3)' : 'none'
+                }}
+              >
+                Sign Up
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {isSignUp && (
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    position: 'absolute',
+                    left: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    pointerEvents: 'none'
+                  }}>
+                    <User style={{ width: '20px', height: '20px', color: '#94A3B8' }} />
+                  </div>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={formData.name || ''}
+                    onChange={handleChange}
+                    required={isSignUp}
+                    style={inputStyle}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#FF6B35';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(255, 107, 53, 0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                </div>
+              )}
+
+              <div style={{ position: 'relative' }}>
+                <div style={{
+                  position: 'absolute',
+                  left: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none'
+                }}>
+                  <Mail style={{ width: '20px', height: '20px', color: '#94A3B8' }} />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#00D4FF';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(0, 212, 255, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ position: 'relative' }}>
+                <div style={{
+                  position: 'absolute',
+                  left: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none'
+                }}>
+                  <Lock style={{ width: '20px', height: '20px', color: '#94A3B8' }} />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  style={{ ...inputStyle, paddingRight: '48px' }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#00D4FF';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(0, 212, 255, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#94A3B8',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
+                >
+                  {showPassword ? <EyeOff style={{ width: '20px', height: '20px' }} /> : <Eye style={{ width: '20px', height: '20px' }} />}
+                </button>
+              </div>
+
+              {isSignUp && (
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    position: 'absolute',
+                    left: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    pointerEvents: 'none'
+                  }}>
+                    <Lock style={{ width: '20px', height: '20px', color: '#94A3B8' }} />
+                  </div>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    value={formData.confirmPassword || ''}
+                    onChange={handleChange}
+                    required={isSignUp}
+                    style={{ ...inputStyle, paddingRight: '48px' }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#FF6B35';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(255, 107, 53, 0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '16px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#94A3B8',
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  >
+                    {showConfirmPassword ? <EyeOff style={{ width: '20px', height: '20px' }} /> : <Eye style={{ width: '20px', height: '20px' }} />}
+                  </button>
+                </div>
+              )}
+
+              {!isSignUp && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                    <input type="checkbox" style={{ marginRight: '8px' }} />
+                    <span style={{ fontSize: '0.875rem', color: '#94A3B8' }}>Remember me</span>
+                  </label>
+                  <RouterLink 
+                    to="/forgot-password" 
+                    style={{
+                      fontSize: '0.875rem',
+                      color: '#00D4FF',
+                      textDecoration: 'none',
+                      transition: 'color 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => e.target.style.color = '#FF6B35'}
+                    onMouseLeave={(e) => e.target.style.color = '#00D4FF'}
+                  >
+                    Forgot Password?
+                  </RouterLink>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  ...primaryButtonStyle,
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = isSignUp 
+                      ? '0 15px 30px rgba(255, 107, 53, 0.4)'
+                      : '0 15px 30px rgba(0, 212, 255, 0.4)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = isSignUp 
+                      ? '0 10px 20px rgba(255, 107, 53, 0.3)'
+                      : '0 10px 20px rgba(0, 212, 255, 0.3)';
                   }
                 }}
               >
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+                {loading ? (
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    border: '2px solid #0F172A',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                ) : (
+                  <>
+                    <span>{isSignUp ? 'Start Tracking' : 'Sign In'}</span>
+                    <ArrowRight style={{ width: '20px', height: '20px' }} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Social Login */}
+           
+
+            {/* Footer */}
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <p style={{
+                fontSize: '0.875rem',
+                color: '#94A3B8',
+                margin: 0
+              }}>
+                By continuing, you agree to our{' '}
+                <a href="#" style={{ color: '#00D4FF', textDecoration: 'none' }}>Terms of Service</a>
+                {' '}and{' '}
+                <a href="#" style={{ color: '#00D4FF', textDecoration: 'none' }}>Privacy Policy</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        @media (min-width: 1024px) {
+          .left-side {
+            display: flex !important;
+          }
+          .right-side {
+            width: 50% !important;
+          }
+        }
+      `}</style>
+    </div>
   );
 };
 
