@@ -68,6 +68,31 @@ const Navbar = () => {
           onClick={() => navigate('/dashboard')}
         >
           <SkillLogLogo variant="white" size="medium" />
+           <Box>
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 800,
+                background: 'linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              SkillLog
+            </Typography>
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                color: '#94A3B8',
+                fontSize: '0.7rem',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Prepration Assistant
+            </Typography>
+          </Box>
         </Box>
         
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

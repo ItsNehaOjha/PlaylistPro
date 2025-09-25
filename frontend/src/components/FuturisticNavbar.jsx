@@ -99,17 +99,7 @@ const FuturisticNavbar = () => {
             >
               SkillLog
             </Typography>
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                color: '#94A3B8',
-                fontSize: '0.7rem',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-              }}
-            >
-              GATE Prep Assistant
-            </Typography>
+            
           </Box>
         </Box>
 
@@ -121,7 +111,7 @@ const FuturisticNavbar = () => {
               onClick={() => navigate(path)}
               startIcon={<Icon size={18} />}
               sx={{
-                color: isActive(path) ? '#00D4FF' : '#E2E8F0',
+                color: isActive(path) ? 'black' : '#E2E8F0',
                 backgroundColor: isActive(path) ? 'rgba(0, 212, 255, 0.1)' : 'transparent',
                 border: isActive(path) ? '1px solid rgba(0, 212, 255, 0.3)' : '1px solid transparent',
                 borderRadius: '12px',
@@ -133,7 +123,7 @@ const FuturisticNavbar = () => {
                 '&:hover': {
                   backgroundColor: 'rgba(0, 212, 255, 0.1)',
                   border: '1px solid rgba(0, 212, 255, 0.3)',
-                  color: '#00D4FF',
+                  color: 'black',
                   transform: 'translateY(-2px)',
                 },
               }}

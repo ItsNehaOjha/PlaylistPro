@@ -300,7 +300,7 @@ const Dashboard = () => {
             component="li" 
             variant="body2" 
             color="text.secondary"
-            sx={{
+            sx={{ 
               transition: 'color 0.3s ease-in-out',
             }}
           >

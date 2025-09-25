@@ -268,7 +268,7 @@ const Login = () => {
               marginBottom: '2rem',
               maxWidth: '400px'
             }}>
-              Your AI-powered learning companion for mastering new skills and achieving your goals
+              Join learners preparing for GATE, interviews, aptitude, and competitive exams. SkillLog helps you track videos, playlists, and progress — all in one place.
             </p>
             
             {/* Stats */}
