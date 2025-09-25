@@ -240,12 +240,7 @@ const MultiPlaylistDashboard = () => {
   }, [token]);
 
   return (
-    <Container maxWidth="lg" sx={{ 
-      py: 2,
-      px: 1,  // Add horizontal padding for left and right margins
-      minHeight: '100vh',
-      backgroundColor: '#0F1419'
-    }}>
+    <Container maxWidth="lg" >
       {/* Header Section */}
       <Box sx={{ mb: 3 }}>
         <Typography 
