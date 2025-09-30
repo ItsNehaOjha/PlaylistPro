@@ -1,7 +1,7 @@
 {
-  "name": "gatetracker-fullstack",
+  "name": "playlistpro-fullstack",
   "version": "1.0.0",
-  "description": "Full-stack Learning Progress Tracker",
+  "description": "PlaylistPro - Comprehensive Learning Progress Tracker",
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
     "build:analyze": "cd frontend && npm run build:analyze",

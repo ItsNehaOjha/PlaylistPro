@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: gatetracker
+    name: playlistpro
     env: node
     plan: free
     buildCommand: npm run build
@@ -10,7 +10,7 @@ services:
         value: production
       - key: MONGO_URI
         fromDatabase:
-          name: gatetracker-db
+          name: playlistpro-db
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
@@ -25,8 +25,8 @@ services:
       - key: EMAIL_PASS
         sync: false
       - key: EMAIL_FROM
-        value: noreply@gatetracker.com
+        value: noreply@playlistpro.com
 
 databases:
-  - name: gatetracker-db
+  - name: playlistpro-db
     plan: free
