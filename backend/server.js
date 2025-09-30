@@ -13,8 +13,13 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors());
+// Middleware - CORS only in development
+if (process.env.NODE_ENV !== "production") {
+  app.use(cors({
+    origin: "http://localhost:3000"
+  }));
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -33,7 +38,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 } else {
   // Basic route for testing in development
-  // Test route
   app.get('/', (req, res) => {
     res.json({ message: 'PlaylistPro API' });
   });
