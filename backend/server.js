@@ -33,8 +33,9 @@ if (process.env.NODE_ENV === 'production') {
   });
 } else {
   // Basic route for testing in development
+  // Test route
   app.get('/', (req, res) => {
-    res.json({ message: 'learnLog API' });
+    res.json({ message: 'PlaylistPro API' });
   });
 }
 

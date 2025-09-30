@@ -31,6 +31,14 @@ const Home = () => {
   const navigate = useNavigate();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
+  // Define the missing gradientTextStyle
+  const gradientTextStyle = {
+    background: 'linear-gradient(135deg, #00D4FF, #FF6B35)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text'
+  };
+
  const features = [
   {
     icon: ListMusic,
@@ -71,89 +79,7 @@ const Home = () => {
 ];
 
 
-  const testimonials = [
-    {
-      name: "Neha",
-      role: "Placement Success",
-      avatar: "👩‍💼",
-      content: "SkillLog's structured approach helped me prepare systematically for technical interviews. The progress tracking kept me motivated throughout my placement preparation journey!",
-      rating: 5,
-      
-    },
-    {
-      name: "Namrata",
-      role: "Placement Success",
-      avatar: "👩‍💻",
-      content: "The playlist feature was a game-changer for my coding interview prep. I could organize DSA topics perfectly and track my daily progress. Landed my dream job!",
-      rating: 5,
-      
-    },
-    {
-      name: "Salony",
-      role: "Placement Success",
-      avatar: "👩‍🎓",
-      content: "Amazing platform for placement preparation! The milestone tracking helped me cover all important topics systematically. Highly recommend for final year students.",
-      rating: 5,
-      
-    },
-    {
-      name: "Shivani",
-      role: "UPSC Qualifier",
-      avatar: "👩‍⚖️",
-      content: "SkillLog transformed my UPSC preparation strategy. The exam countdown and daily scheduling features kept me on track throughout the year-long journey.",
-      rating: 5,
-      
-    },
-    {
-      name: "Tripti",
-      role: "Placement Success",
-      avatar: "👩‍🔬",
-      content: "The analytics feature showed me exactly where I was spending time and what needed more focus. This data-driven approach helped me crack multiple interviews!",
-      rating: 5,
-      
-    },
-    {
-      name: "Robin",
-      role: "GATE Qualifier",
-      avatar: "👨‍🔧",
-      content: "Excellent tool for GATE preparation! The subject-wise playlist organization and progress tracking made covering the vast syllabus manageable and efficient.",
-      rating: 5,
-      
-    },
-    {
-      name: "Ritik",
-      role: "GATE Qualifier",
-      avatar: "👨‍🎓",
-      content: "SkillLog's smart scheduling aligned perfectly with my GATE timeline. The milestone tracking gave me confidence that I was progressing well. Scored 98.7 percentile!",
-      rating: 5,
-      
-    },
-    {
-      name: "Nikhil",
-      role: "Machine Learning",
-      avatar: "👨‍💻",
-      content: "Perfect for ML learning path! I organized all my courses, research papers, and projects in playlists. The progress visualization kept me motivated through complex topics.",
-      rating: 5,
-      
-    },
-    {
-      name: "Nakshatra",
-      role: "Cyber Security",
-      avatar: "👨‍🔒",
-      content: "SkillLog helped me structure my cybersecurity learning journey. From basics to advanced topics, the playlist feature made everything organized and trackable.",
-      rating: 5,
-      
-    },
-    {
-      name: "Chetan",
-      role: "Cyber Security",
-      avatar: "👨‍🛡️",
-      content: "Incredible platform for cybersecurity enthusiasts! The ability to track practical labs, theory videos, and certification progress in one place is fantastic.",
-      rating: 5,
-      company: "InfoSec Professional"
-    }
-  ];
-
+ 
   const stats = [
   { number: "100%", label: "All Playlists Supported", icon: PlayCircle },
   { number: "50+", label: "Exams & Skills Tracked", icon: BookOpen },
@@ -568,241 +494,7 @@ const Home = () => {
       </section>
 
       {/* Testimonials Carousel Section */}
-      <section style={{
-        padding: '5rem 1.5rem',
-        background: 'rgba(15, 23, 42, 0.4)',
-        backdropFilter: 'blur(10px)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Background Effects */}
-        <div style={{
-          position: 'absolute',
-          top: '20%',
-          left: '10%',
-          width: '200px',
-          height: '200px',
-          background: 'radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(40px)',
-          animation: 'float 8s ease-in-out infinite'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '20%',
-          right: '10%',
-          width: '150px',
-          height: '150px',
-          background: 'radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(40px)',
-          animation: 'float 8s ease-in-out infinite 3s'
-        }} />
-
-        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h3 style={{ 
-              fontSize: '2.5rem', 
-              fontWeight: 'bold', 
-              color: '#ffffff', 
-              marginBottom: '1rem',
-              background: 'linear-gradient(135deg, #00D4FF, #FF6B35)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              Success Stories
-            </h3>
-            <p style={{ fontSize: '1.25rem', color: '#94a3b8', maxWidth: '600px', margin: '0 auto' }}>
-              Real achievements from students who transformed their careers with SkillLog
-            </p>
-          </div>
-
-          {/* Carousel Container */}
-          <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto' }}>
-            {/* Navigation Buttons */}
-            <button
-              onClick={prevTestimonial}
-              style={{
-                position: 'absolute',
-                left: '-60px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'rgba(0, 212, 255, 0.2)',
-                border: '1px solid rgba(0, 212, 255, 0.3)',
-                color: '#00D4FF',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-                zIndex: 20
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgba(0, 212, 255, 0.3)';
-                e.target.style.transform = 'translateY(-50%) scale(1.1)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgba(0, 212, 255, 0.2)';
-                e.target.style.transform = 'translateY(-50%) scale(1)';
-              }}
-            >
-              <ChevronLeft size={24} />
-            </button>
-
-            <button
-              onClick={nextTestimonial}
-              style={{
-                position: 'absolute',
-                right: '-60px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'rgba(0, 212, 255, 0.2)',
-                border: '1px solid rgba(0, 212, 255, 0.3)',
-                color: '#00D4FF',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-                zIndex: 20
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgba(0, 212, 255, 0.3)';
-                e.target.style.transform = 'translateY(-50%) scale(1.1)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgba(0, 212, 255, 0.2)';
-                e.target.style.transform = 'translateY(-50%) scale(1)';
-              }}
-            >
-              <ChevronRight size={24} />
-            </button>
-
-            {/* Testimonial Card */}
-            <div style={{
-              background: 'rgba(30, 41, 59, 0.8)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(0, 212, 255, 0.3)',
-              borderRadius: '2rem',
-              padding: '3rem',
-              textAlign: 'center',
-              minHeight: '300px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
-              transition: 'all 0.5s ease'
-            }}>
-              {/* Rating Stars */}
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                  <Star key={i} size={20} style={{ color: '#FFD700', fill: '#FFD700', margin: '0 2px' }} />
-                ))}
-              </div>
-
-              {/* Quote */}
-              <p style={{
-                color: '#e2e8f0',
-                fontSize: '1.125rem',
-                lineHeight: '1.8',
-                marginBottom: '2rem',
-                fontStyle: 'italic',
-                maxWidth: '600px',
-                margin: '0 auto 2rem auto'
-              }}>
-                "{testimonials[currentTestimonial].content}"
-              </p>
-
-              {/* Author Info */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{
-                  width: '64px',
-                  height: '64px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #00D4FF, #0099CC)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  marginRight: '1.5rem',
-                  boxShadow: '0 10px 20px rgba(0, 212, 255, 0.3)'
-                }}>
-                  {testimonials[currentTestimonial].avatar}
-                </div>
-                <div style={{ textAlign: 'left' }}>
-                  <h4 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: '#ffffff',
-                    margin: '0 0 0.25rem 0'
-                  }}>
-                    {testimonials[currentTestimonial].name}
-                  </h4>
-                  <p style={{
-                    fontSize: '1rem',
-                    color: '#00D4FF',
-                    margin: '0 0 0.25rem 0',
-                    fontWeight: '500'
-                  }}>
-                    {testimonials[currentTestimonial].role}
-                  </p>
-                  <p style={{
-                    fontSize: '0.875rem',
-                    color: '#94a3b8',
-                    margin: 0
-                  }}>
-                    {testimonials[currentTestimonial].company}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Dots Indicator */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginTop: '2rem',
-              gap: '0.5rem'
-            }}>
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToTestimonial(index)}
-                  style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    border: 'none',
-                    background: index === currentTestimonial 
-                      ? 'linear-gradient(135deg, #00D4FF, #0099CC)' 
-                      : 'rgba(148, 163, 184, 0.3)',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    transform: index === currentTestimonial ? 'scale(1.2)' : 'scale(1)'
-                  }}
-                  onMouseOver={(e) => {
-                    if (index !== currentTestimonial) {
-                      e.target.style.background = 'rgba(148, 163, 184, 0.5)';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (index !== currentTestimonial) {
-                      e.target.style.background = 'rgba(148, 163, 184, 0.3)';
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+     
 
       {/* CTA Section */}
       <section style={{ padding: '5rem 1.5rem', textAlign: 'center' }}>
@@ -816,7 +508,8 @@ const Home = () => {
               marginBottom: '1.5rem',
               marginTop: '2rem'
             }}>
-              Ready to Transform Your Learning?
+              Master Your Learning Journey with
+              <span style={gradientTextStyle}> Smart Progress Tracking</span>
             </h3>
             <p style={{
               fontSize: '1.25rem',
@@ -955,3 +648,42 @@ const Home = () => {
 };
 
 export default Home;
+
+const testimonials = [
+  {
+    id: 1,
+    name: "Priya Sharma",
+    role: "Software Engineer at Google",
+    avatar: "👩‍💻",
+    content: "PlaylistPro's structured approach helped me prepare systematically for technical interviews. The progress tracking kept me motivated throughout my placement preparation journey!",
+    rating: 5,
+    company: "Google"
+  },
+  {
+    id: 2,
+    name: "Rahul Kumar",
+    role: "IAS Officer",
+    avatar: "👨‍💼",
+    content: "PlaylistPro transformed my UPSC preparation strategy. The exam countdown and daily scheduling features kept me on track throughout the year-long journey.",
+    rating: 5,
+    company: "Government of India"
+  },
+  {
+    id: 3,
+    name: "Ananya Patel",
+    role: "GATE AIR 47",
+    avatar: "👩‍🎓",
+    content: "PlaylistPro's smart scheduling aligned perfectly with my GATE timeline. The milestone tracking gave me confidence that I was progressing well. Scored 98.7 percentile!",
+    rating: 5,
+    company: "IIT Bombay"
+  },
+  {
+    id: 4,
+    name: "Vikram Singh",
+    role: "Cybersecurity Analyst",
+    avatar: "👨‍💻",
+    content: "PlaylistPro helped me structure my cybersecurity learning journey. From basics to advanced topics, the playlist feature made everything organized and trackable.",
+    rating: 5,
+    company: "Microsoft"
+  }
+];

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -19,9 +19,10 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import SkillLogLogo from './SkillLogLogo';
+import SkillLogLogo from './PlaylistPro';
+import PlaylistProLogo from './PlaylistProLogo';
 
-const Navbar = () => {
+const Navbar = ({ user, onLogout }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -168,16 +169,7 @@ const Navbar = () => {
               </ListItemIcon>
               Playlists
             </MenuItem>
-            
-            <MenuItem 
-              onClick={() => handleNavigation('/scheduler')}
-              selected={isActive('/scheduler')}
-            >
-              <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                <ScheduleIcon fontSize="small" />
-              </ListItemIcon>
-              Dynamic Scheduler
-            </MenuItem>
+           
             
             {/* Remove scheduler menu item */}
             

@@ -4,6 +4,7 @@
   "description": "Full-stack Learning Progress Tracker",
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
+    "build:analyze": "cd frontend && npm run build:analyze",
     "start": "cd backend && npm start",
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
     "install-deps": "cd backend && npm install && cd ../frontend && npm install"
@@ -12,6 +13,7 @@
     "lucide-react": "^0.544.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.0",
+    "rollup-plugin-visualizer": "^6.0.3"
   }
 }

@@ -11,24 +11,12 @@ import {
   Menu,
   MenuItem,
   Avatar,
-  Divider,
   ListItemIcon,
-  ListItemText,
-  Badge,
-  Tooltip
 } from '@mui/material';
 import {
-  User,
-  Settings,
   LogOut,
-  Bell,
-  Search,
-  Menu as MenuIcon,
-  Home,
   PlayCircle,
-  Calendar,
   BarChart3,
-  Brain
 } from 'lucide-react';
 import BrainIcon from './BrainIcon';
 
@@ -61,7 +49,6 @@ const FuturisticNavbar = () => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/playlists', label: 'Playlists', icon: PlayCircle },
-    // Remove: { path: '/scheduler', label: 'Scheduler', icon: Calendar },
   ];
 
   return (
@@ -97,9 +84,8 @@ const FuturisticNavbar = () => {
                 fontFamily: 'Inter, sans-serif',
               }}
             >
-              SkillLog
+              PlaylistPro
             </Typography>
-            
           </Box>
         </Box>
 
@@ -123,7 +109,7 @@ const FuturisticNavbar = () => {
                 '&:hover': {
                   backgroundColor: 'rgba(0, 212, 255, 0.1)',
                   border: '1px solid rgba(0, 212, 255, 0.3)',
-                  color: 'black',
+                  color: '#00D4FF',
                   transform: 'translateY(-2px)',
                 },
               }}
@@ -135,7 +121,7 @@ const FuturisticNavbar = () => {
 
         {/* User Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* User greeting with robot mood */}
+          {/* User greeting */}
           <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
             <Typography variant="body2" sx={{ color: '#E2E8F0', fontWeight: 600 }}>
               Welcome back!

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { Book, PlayArrow } from '@mui/icons-material';
 
-const SkillLogLogo = ({ variant = 'default', size = 'medium', showText = true }) => {
+const PlaylistProLogo = ({ variant = 'default', size = 'medium', showText = true }) => {
   const getSize = () => {
     switch (size) {
       case 'small': return { icon: 16, text: 'body2' };
@@ -50,10 +50,10 @@ const SkillLogLogo = ({ variant = 'default', size = 'medium', showText = true })
           color: variant === 'white' ? '#FFFFFF' : 'inherit'
         }}
       >
-        SkillLog
+        PlaylistPro
       </Typography>
     </Box>
   );
 };
 
-export default SkillLogLogo;
+export default PlaylistProLogo;

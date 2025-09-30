@@ -88,7 +88,7 @@ const Login = () => {
     background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)',
     position: 'relative',
     overflow: 'hidden',
-    '@media (min-width: 1024px)': {
+    '@media (minWidth: 1024)': {
       display: 'flex'
     }
   };
@@ -173,94 +173,40 @@ const Login = () => {
 
   return (
     <div style={containerStyle}>
-      {/* Left Side - Features & Branding */}
-      <div style={{ ...leftSideStyle, display: window.innerWidth >= 1024 ? 'flex' : 'none' }}>
-        {/* Animated Background Elements */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: 0.1
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '80px',
-            left: '80px',
-            width: '300px',
-            height: '300px',
-            background: 'radial-gradient(circle, #00D4FF 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(60px)',
-            animation: 'float 6s ease-in-out infinite'
-          }}></div>
-          <div style={{
-            position: 'absolute',
-            top: '160px',
-            right: '80px',
-            width: '250px',
-            height: '250px',
-            background: 'radial-gradient(circle, #FF6B35 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(60px)',
-            animation: 'float 6s ease-in-out infinite 2s'
-          }}></div>
-          <div style={{
-            position: 'absolute',
-            bottom: '80px',
-            left: '160px',
-            width: '200px',
-            height: '200px',
-            background: 'radial-gradient(circle, #10B981 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(60px)',
-            animation: 'float 6s ease-in-out infinite 4s'
-          }}></div>
-        </div>
-
+      {/* Left Side - Hero Section */}
+      <div style={leftSideStyle}>
         <div style={{
           position: 'relative',
-          zIndex: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '3rem',
-          color: 'white',
-          textAlign: 'center'
+          zIndex: 2,
+          textAlign: 'center',
+          padding: '2rem'
         }}>
-          {/* Hero Section */}
-          <div style={{ marginBottom: '3rem' }}>
-            <div 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                marginBottom: '1.5rem',
-                cursor: 'pointer',
-                transition: 'transform 0.3s ease'
-              }}
-              onClick={() => navigate('/')}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <BrainIcon size="xl" animated={true} />
-            </div>
-            <h1 
-              style={{
-                fontSize: '3rem',
-                fontWeight: 'bold',
-                marginBottom: '1rem',
-                background: 'linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                cursor: 'pointer',
-                transition: 'transform 0.3s ease'
-              }}
-              onClick={() => navigate('/')}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '2rem'
+          }}>
+            <BrainIcon />
+          </div>
+          
+          <div style={{
+            marginBottom: '2rem'
+          }}>
+            <h1 style={{
+              fontSize: '4rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              marginBottom: '1rem',
+              margin: 0,
+              transition: 'transform 0.3s ease',
+              cursor: 'default'
+            }}
               onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
               onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
             >
-              SkillLog
+              PlaylistPro
             </h1>
             <p style={{
               fontSize: '1.25rem',
@@ -268,7 +214,7 @@ const Login = () => {
               marginBottom: '2rem',
               maxWidth: '400px'
             }}>
-              Join learners preparing for GATE, interviews, aptitude, and competitive exams. SkillLog helps you track videos, playlists, and progress — all in one place.
+              Join learners preparing for GATE, interviews, aptitude, and competitive exams. PlaylistPro helps you track videos, playlists, and progress — all in one place.
             </p>
             
             {/* Stats */}
@@ -324,13 +270,13 @@ const Login = () => {
                 marginBottom: '0.5rem',
                 margin: 0
               }}>
-                {isSignUp ? 'Join SkillLog' : 'Welcome Back'}
+                {isSignUp ? 'Join PlaylistPro' : 'Welcome Back'}
               </h2>
               <p style={{
                 color: '#94A3B8',
-                margin: 0
+                fontSize: '1rem'
               }}>
-                {isSignUp ? 'Start your learning journey today' : 'Continue your learning adventure'}
+                {isSignUp ? 'Create your account to start tracking your learning progress' : 'Sign in to continue your learning journey'}
               </p>
             </div>
 

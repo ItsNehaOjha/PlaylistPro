@@ -50,7 +50,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container component="main" maxWidth="sm">
       <Box
         sx={{
           marginTop: 8,

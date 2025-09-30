@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -23,7 +23,8 @@ import {
   Analytics,
   NoteAdd,
 } from '@mui/icons-material';
-import SkillLogLogo from '../components/SkillLogLogo';
+import SkillLogLogo from '../components/PlaylistPro';
+import PlaylistProLogo from '../components/PlaylistProLogo';
 
 const Dashboard = () => {
   const navigate = useNavigate();

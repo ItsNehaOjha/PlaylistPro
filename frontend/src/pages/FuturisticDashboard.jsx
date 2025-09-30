@@ -8,23 +8,11 @@ import {
   CardContent,
   Typography,
   Button,
-  LinearProgress,
   Chip,
-  Avatar,
-  IconButton,
-  Tooltip,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Divider,
-  Badge,
   Container
 } from '@mui/material';
 import {
   PlayCircle,
-  Calendar,
   TrendingUp,
   Award,
   Clock,
@@ -32,30 +20,17 @@ import {
   Zap,
   BookOpen,
   Users,
-  Star,
-  ArrowRight,
-  Plus,
-  Settings,
-  Bell,
-  Search,
-  Filter,
-  Download,
-  Share,
-  CheckCircle,
-  Circle,
-  Brain
 } from 'lucide-react';
 import BrainIcon from '../components/BrainIcon';
 import { CircularProgressRing } from '../components/FuturisticProgress';
 import axios from 'axios';
 
-const FuturisticDashboard = () => {
+export default function FuturisticDashboard() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
   
   // State for dynamic data
   const [playlists, setPlaylists] = useState([]);
-  // Remove: const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quickStats, setQuickStats] = useState([
     { label: 'Study Streak', value: '0 days', icon: Zap, color: '#00D4FF' },
@@ -83,34 +58,22 @@ const FuturisticDashboard = () => {
     try {
       setLoading(true);
       
-      // Fetch both playlists and sessions concurrently
-      const [playlistResponse, sessionResponse] = await Promise.all([
-        api.get('/playlists'),
-        api.get(`/scheduler/sessions/${user._id}`)
-      ]);
-      
+      // Fetch playlists
+      const playlistResponse = await api.get('/playlists');
       const playlistData = playlistResponse.data;
-      const sessionData = sessionResponse.data.data || [];
       
       setPlaylists(playlistData);
-      setSessions(sessionData);
       
       // Calculate dynamic stats
-      calculateStats(playlistData, sessionData);
+      calculateStats(playlistData);
     } catch (error) {
       console.error('Error fetching data:', error);
-      // If sessions API fails, still try to fetch playlists
       try {
         // Fetch playlists only
         const playlistResponse = await api.get('/playlists');
-        // Remove: api.get(`/scheduler/sessions/${user._id}`)
-        
         const playlistData = playlistResponse.data;
-        // Remove: const sessionData = sessionResponse.data.data || [];
-        
         setPlaylists(playlistData);
-        // Remove: setSessions(sessionData);
-        calculateStats(playlistData, []);
+        calculateStats(playlistData);
       } catch (playlistError) {
         console.error('Error fetching playlists:', playlistError);
       }
@@ -119,14 +82,14 @@ const FuturisticDashboard = () => {
     }
   };
 
-  const calculateStats = (playlistData, sessionData) => {
+  const calculateStats = (playlistData) => {
     // Check if playlistData exists and is an array
     if (!playlistData || !Array.isArray(playlistData) || playlistData.length === 0) {
       setQuickStats([
         { label: 'Study Streak', value: '0 days', icon: Zap, color: '#00D4FF' },
         { label: 'Total Progress', value: '0%', icon: Target, color: '#10B981' },
         { label: 'Study Time', value: '0h', icon: Clock, color: '#F59E0B' },
-        { label: 'Achievements', value: '0', icon: Award, color: '#8B5CF6' },
+        { label: 'Playlists Completed', value: '0', icon: Award, color: '#8B5CF6' },
       ]);
       return;
     }
@@ -143,15 +106,23 @@ const FuturisticDashboard = () => {
       if (playlist.sourceType === 'manual') {
         return acc + (playlist.completedVideos ? playlist.completedVideos.length : 0);
       }
-      return acc + playlist.videos.filter(v => v.completed && !v.isPrivate).length;
+      return acc + (playlist.videos ? playlist.videos.filter(v => v.completed && !v.isPrivate).length : 0);
     }, 0);
     
-    const progressPercentage = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
+    // Calculate completed playlists
+    const completedPlaylists = playlistData.filter(playlist => {
+      if (playlist.sourceType === 'manual') {
+        const totalVideos = playlist.manualTotalVideos || 0;
+        const completed = playlist.completedVideos ? playlist.completedVideos.length : 0;
+        return totalVideos > 0 && completed >= totalVideos;
+      } else {
+        const availableVideos = playlist.availableVideos || 0;
+        const completedCount = playlist.videos ? playlist.videos.filter(v => v.completed && !v.isPrivate).length : 0;
+        return availableVideos > 0 && completedCount >= availableVideos;
+      }
+    }).length;
     
-    // Calculate session stats
-    const activeSessions = sessionData.filter(session => session.status === 'active').length;
-    const completedSessions = sessionData.filter(session => session.status === 'completed').length;
-    const totalSessions = sessionData.length;
+    const progressPercentage = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
     
     // Calculate study time from completed videos (assuming 10 minutes per video)
     const studyTimeHours = Math.round((completedVideos * 10) / 60);
@@ -164,7 +135,7 @@ const FuturisticDashboard = () => {
       { label: 'Study Streak', value: `${streak} days`, icon: Zap, color: '#00D4FF' },
       { label: 'Total Progress', value: `${progressPercentage}%`, icon: Target, color: '#10B981' },
       { label: 'Study Time', value: `${studyTimeHours}h`, icon: Clock, color: '#F59E0B' },
-      { label: 'Achievements', value: `${completedSessions}`, icon: Award, color: '#8B5CF6' },
+      { label: 'Playlists Completed', value: `${completedPlaylists}`, icon: Award, color: '#8B5CF6' },
     ]);
   };
 
@@ -179,7 +150,7 @@ const FuturisticDashboard = () => {
       checkDate.setDate(today.getDate() - i);
       
       const hasActivity = playlistData.some(playlist => 
-        playlist.videos.some(video => {
+        playlist.videos && playlist.videos.some(video => {
           if (video.completed && video.completedAt) {
             const completedDate = new Date(video.completedAt);
             return completedDate.toDateString() === checkDate.toDateString();
@@ -203,7 +174,7 @@ const FuturisticDashboard = () => {
   const features = [
     {
       title: 'Playlist Tracker',
-      description: 'Your current progress count till now exclusing the private videos',
+      description: 'Your current progress count till now excluding the private videos',
       icon: PlayCircle,
       color: '#00D4FF',
       path: '/playlists',
@@ -213,7 +184,7 @@ const FuturisticDashboard = () => {
           if (playlist.sourceType === 'manual') {
             return acc + (playlist.completedVideos ? playlist.completedVideos.length : 0);
           }
-          return acc + playlist.videos.filter(v => v.completed && !v.isPrivate).length;
+          return acc + (playlist.videos ? playlist.videos.filter(v => v.completed && !v.isPrivate).length : 0);
         }, 0), 
         total: playlists.reduce((acc, playlist) => {
           if (playlist.sourceType === 'manual') {
@@ -224,7 +195,6 @@ const FuturisticDashboard = () => {
       },
       category: 'Learning',
     },
-    // Remove Dynamic Scheduler feature object
     {
       title: 'Quiz Generator',
       description: 'Generate quizzes from your video content',
@@ -255,7 +225,6 @@ const FuturisticDashboard = () => {
       stats: { completed: 0, total: 5 },
       category: 'Social',
     },
-    
   ];
 
   return (
@@ -277,7 +246,7 @@ const FuturisticDashboard = () => {
               fontWeight: 800,
             }}
           >
-            Welcome to SkillLog
+            Welcome to PlaylistPro
           </Typography>
           
           <Typography
@@ -294,7 +263,7 @@ const FuturisticDashboard = () => {
           </Typography>
         </Box>
 
-        {/* Learning Progress Section - Separate Container */}
+        {/* Learning Progress Section */}
         <Box
           sx={{
             mb: 6,
@@ -313,7 +282,6 @@ const FuturisticDashboard = () => {
             textAlign: 'center',
           }}
         >
-          {/* Dynamic Track Record Heading */}
           <Typography
             variant="h3"
             sx={{
@@ -387,7 +355,7 @@ const FuturisticDashboard = () => {
         <Grid container spacing={4} sx={{ mb: 6, justifyContent: 'center' }}>
           {features.slice(0, 1).map((feature, index) => {
             const Icon = feature.icon;
-            const progressPercentage = (feature.stats.completed / feature.stats.total) * 100;
+            const progressPercentage = feature.stats.total > 0 ? (feature.stats.completed / feature.stats.total) * 100 : 0;
             
             return (
               <Grid item xs={12} sm={10} md={8} lg={6} key={index}>
@@ -553,7 +521,7 @@ const FuturisticDashboard = () => {
         <Grid container spacing={4} sx={{ justifyContent: 'center' }}>
           {features.slice(1).map((feature, index) => {
             const Icon = feature.icon;
-            const progressPercentage = (feature.stats.completed / feature.stats.total) * 100;
+            const progressPercentage = feature.stats.total > 0 ? (feature.stats.completed / feature.stats.total) * 100 : 0;
             
             return (
               <Grid item xs={12} sm={8} md={6} lg={4} key={index}>
@@ -565,6 +533,8 @@ const FuturisticDashboard = () => {
                     maxWidth: '400px',
                     mx: 'auto',
                     opacity: 0.7,
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
                     '&:hover': {
                       '& .circuit-line': {
                         opacity: 1,
@@ -592,48 +562,39 @@ const FuturisticDashboard = () => {
                   
                   <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
                     {/* Header */}
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Box
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: '12px',
+                          background: `${feature.color}20`,
+                          border: `1px solid ${feature.color}40`,
+                        }}
+                      >
+                        <Icon size={24} color={feature.color} />
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="h6"
                           sx={{
-                            p: 2,
-                            borderRadius: '12px',
-                            background: `${feature.color}20`,
-                            border: `1px solid ${feature.color}40`,
+                            fontWeight: 600,
+                            color: '#E2E8F0',
+                            mb: 0.5,
                           }}
                         >
-                          <Icon size={32} color={feature.color} />
-                        </Box>
-                        <Box>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontWeight: 700,
-                              color: '#E2E8F0',
-                              mb: 0.5,
-                            }}
-                          >
-                            {feature.title}
-                          </Typography>
-                          <Chip
-                            label={feature.category}
-                            size="small"
-                            sx={{
-                              backgroundColor: `${feature.color}20`,
-                              color: feature.color,
-                              border: `1px solid ${feature.color}40`,
-                              fontSize: '0.7rem',
-                            }}
-                          />
-                        </Box>
+                          {feature.title}
+                        </Typography>
+                        <Chip
+                          label={feature.category}
+                          size="small"
+                          sx={{
+                            backgroundColor: `${feature.color}20`,
+                            color: feature.color,
+                            border: `1px solid ${feature.color}40`,
+                            fontSize: '0.7rem',
+                          }}
+                        />
                       </Box>
-                      
-                      <CircularProgressRing
-                        value={progressPercentage}
-                        size={60}
-                        thickness={4}
-                        showPercentage={false}
-                      />
                     </Box>
 
                     {/* Description */}
@@ -651,8 +612,8 @@ const FuturisticDashboard = () => {
 
                     {/* Stats */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                      <Typography variant="body2" sx={{ color: '#94A3B8' }}>
-                        Progress: {feature.stats.completed}/{feature.stats.total}
+                      <Typography variant="body2" sx={{ color: '#64748B' }}>
+                        {feature.stats.completed}/{feature.stats.total} features
                       </Typography>
                       <Typography
                         variant="body2"
@@ -665,25 +626,21 @@ const FuturisticDashboard = () => {
                       </Typography>
                     </Box>
 
-                    {/* Action Button */}
+                    {/* Coming Soon Button */}
                     <Button
                       variant="outlined"
                       size="medium"
-                      disabled={!feature.available}
+                      disabled
                       sx={{
-                        borderColor: `${feature.color}40`,
+                        borderColor: 'rgba(148, 163, 184, 0.3)',
                         color: '#64748B',
-                        fontWeight: 600,
+                        fontWeight: 500,
                         py: 1,
                         borderRadius: '8px',
                         textTransform: 'none',
-                        '&:hover': {
-                          borderColor: `${feature.color}60`,
-                          backgroundColor: `${feature.color}10`,
-                        },
                       }}
                     >
-                      {feature.available ? 'Launch Module' : 'Coming Soon'}
+                      Coming Soon
                     </Button>
                   </CardContent>
                 </Card>
@@ -691,83 +648,7 @@ const FuturisticDashboard = () => {
             );
           })}
         </Grid>
-
-        {/* Motivational Section */}
-        {/* <Box
-          sx={{
-            mt: 8,
-            p: 4,
-            textAlign: 'center',
-            background: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(0, 212, 255, 0.2)',
-            borderRadius: '20px',
-          }}
-        >
-          <BrainIcon size="large" animated={true} mood="happy" />
-          <Typography
-            variant="h4"
-            sx={{
-              mt: 2,
-              mb: 2,
-              fontWeight: 700,
-              color: '#E2E8F0',
-            }}
-          >
-            Ready to Level Up Your GATE Prep?
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: '#94A3B8',
-              mb: 3,
-              maxWidth: '600px',
-              mx: 'auto',
-            }}
-          >
-            Your AI study companion is here to help you achieve your goals. Start with playlist tracking and dynamic scheduling to build momentum!
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => navigate('/playlists')}
-              sx={{
-                background: 'linear-gradient(135deg, #00D4FF 0%, #0099CC 100%)',
-                color: '#0A0E1A',
-                fontWeight: 600,
-                px: 4,
-                py: 1.5,
-                borderRadius: '12px',
-                textTransform: 'none',
-              }}
-            >
-              Start Learning
-            </Button>
-            <BrainIcon size="large" animated={true} />
-            // Remove scheduler navigation
-            // onClick={() => navigate('/scheduler')}
-              sx={{
-                border: '1px solid rgba(0, 212, 255, 0.4)',
-                color: '#00D4FF',
-                fontWeight: 600,
-                px: 4,
-                py: 1.5,
-                borderRadius: '12px',
-                textTransform: 'none',
-                '&:hover': {
-                  background: 'rgba(0, 212, 255, 0.1)',
-                  border: '1px solid rgba(0, 212, 255, 0.6)',
-                },
-              }}
-            >
-              Plan Schedule
-            </Button>
-          </Box>
-        </Box> */}
       </Container>
     </Box>
   );
-};
-
-export default FuturisticDashboard;
+}

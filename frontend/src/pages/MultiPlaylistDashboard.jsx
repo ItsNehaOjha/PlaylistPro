@@ -69,6 +69,7 @@ const MultiPlaylistDashboard = () => {
   const [trackerTitle, setTrackerTitle] = useState('');
   const [videosPerDay, setVideosPerDay] = useState(5);
   const [manualTotalVideos, setManualTotalVideos] = useState(10);
+  const [newPlaylistName, setNewPlaylistName] = useState('');
 
   // API configuration - Updated
   const api = createApiInstance(token);
@@ -1322,11 +1323,14 @@ const MultiPlaylistDashboard = () => {
                     '&.Mui-focused fieldset': { borderColor: '#3B82F6' }
                   }
                 }}
+                helperText="Paste the full YouTube playlist URL here"
+                FormHelperTextProps={{ sx: { color: '#6B7280' } }}
               />
               
               <TextField
                 margin="dense"
-                label="Tracker Title"
+                id="name"
+                label="Playlist Name"
                 fullWidth
                 variant="outlined"
                 value={trackerTitle}
