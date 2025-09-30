@@ -1,50 +1,38 @@
 const Playlist = require('../models/Playlist');
 const axios = require('axios');
 
-// @desc    Create new playlist
-// @route   POST /api/playlists
-// @access  Private
 const createPlaylist = async (req, res) => {
   try {
     const { playlistUrl, videosPerDay = 5, sourceType = 'youtube', title, totalVideos, trackerTitle } = req.body;
     const userId = req.user._id;
 
     if (sourceType === 'youtube') {
-      // YouTube playlist flow
       if (!playlistUrl) {
         return res.status(400).json({ message: 'Playlist URL is required for YouTube sources' });
       }
 
-      // Extract playlist ID from URL
       const playlistId = extractPlaylistId(playlistUrl);
       if (!playlistId) {
         return res.status(400).json({ message: 'Invalid YouTube playlist URL' });
       }
 
-      // Check if playlist already exists for this user
       const existingPlaylist = await Playlist.findOne({ userId, playlistId });
       if (existingPlaylist) {
         return res.status(400).json({ message: 'Playlist already exists for this user' });
       }
 
-      // Fetch playlist data from YouTube API
       let playlistData;
       try {
         playlistData = await fetchPlaylistFromYouTube(playlistId);
       } catch (ytError) {
-        console.error('YouTube fetch failed:', ytError);
         const statusCode = ytError.statusCode || 400;
         const errorMessage = ytError.message || 'Failed to fetch playlist from YouTube';
         return res.status(statusCode).json({ message: errorMessage });
       }
 
-      // Group videos by day
       const videosWithDays = groupVideosByDay(playlistData.videos, videosPerDay);
-
-      // Use provided trackerTitle or fallback to YouTube title
       const finalTrackerTitle = trackerTitle || playlistData.title;
 
-      // Create playlist document
       const playlist = await Playlist.create({
         userId,
         playlistId,
@@ -60,7 +48,6 @@ const createPlaylist = async (req, res) => {
 
       res.status(201).json(playlist);
     } else if (sourceType === 'manual') {
-      // Manual playlist flow
       if (!title || !totalVideos) {
         return res.status(400).json({ message: 'Title and total videos are required for manual sources' });
       }
@@ -69,10 +56,8 @@ const createPlaylist = async (req, res) => {
         return res.status(400).json({ message: 'Total videos must be between 1 and 1000' });
       }
 
-      // Use provided trackerTitle or fallback to title
       const finalTrackerTitle = trackerTitle || title;
 
-      // Create manual playlist document
       const playlist = await Playlist.create({
         userId,
         title,
@@ -83,7 +68,7 @@ const createPlaylist = async (req, res) => {
         totalVideos: totalVideos,
         availableVideos: totalVideos,
         privateVideos: 0,
-        videos: [], // No individual video objects for manual sources
+        videos: [],
       });
 
       res.status(201).json(playlist);
@@ -91,7 +76,6 @@ const createPlaylist = async (req, res) => {
       return res.status(400).json({ message: 'Invalid source type' });
     }
   } catch (error) {
-    console.error('Create playlist error:', error);
     if (error.code === 11000) {
       return res.status(400).json({ message: 'Playlist already exists for this user' });
     }
@@ -99,18 +83,13 @@ const createPlaylist = async (req, res) => {
   }
 };
 
-// @desc    Get all playlists for user
-// @route   GET /api/playlists
-// @access  Private
 const getUserPlaylists = async (req, res) => {
   try {
     const userId = req.user._id;
     const playlists = await Playlist.find({ userId }).sort({ createdAt: -1 });
     
-    // Handle backward compatibility for existing playlists without trackerTitle
     const updatedPlaylists = await Promise.all(playlists.map(async (playlist) => {
       if (!playlist.trackerTitle) {
-        // Set default trackerTitle based on existing data
         const defaultTitle = playlist.title || `Playlist ${playlist._id.toString().slice(-6)}`;
         playlist.trackerTitle = defaultTitle;
         await playlist.save();
@@ -120,43 +99,31 @@ const getUserPlaylists = async (req, res) => {
     
     res.json(updatedPlaylists);
   } catch (error) {
-    console.error('Get playlists error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// @desc    Update video progress
-// @route   PATCH /api/playlists/:playlistId
-// @access  Private
 const updateVideoProgress = async (req, res) => {
   try {
     const { playlistId } = req.params;
     const { videoId, completed, videoIndex } = req.body;
     const userId = req.user._id;
 
-    console.log('Update video progress request:', { playlistId, videoId, completed, videoIndex, userId });
-
     if (typeof completed !== 'boolean') {
       return res.status(400).json({ message: 'Completed status is required' });
     }
 
-    // Find playlist by MongoDB _id (not YouTube playlistId)
     const playlist = await Playlist.findOne({ _id: playlistId, userId });
     if (!playlist) {
-      console.log('Playlist not found:', { playlistId, userId });
       return res.status(404).json({ message: 'Playlist not found' });
     }
 
-    console.log('Found playlist:', { playlistId: playlist._id, title: playlist.title, sourceType: playlist.sourceType });
-
     if (playlist.sourceType === 'manual') {
-      // Handle manual video completion
       if (typeof videoIndex !== 'number' || videoIndex < 0 || videoIndex >= playlist.manualTotalVideos) {
         return res.status(400).json({ message: 'Invalid video index for manual playlist' });
       }
 
       if (completed) {
-        // Add to completed videos if not already there
         const existingIndex = playlist.completedVideos.findIndex(cv => cv.videoIndex === videoIndex);
         if (existingIndex === -1) {
           playlist.completedVideos.push({
@@ -165,45 +132,32 @@ const updateVideoProgress = async (req, res) => {
           });
         }
       } else {
-        // Remove from completed videos
         playlist.completedVideos = playlist.completedVideos.filter(cv => cv.videoIndex !== videoIndex);
       }
 
       await playlist.save();
-      console.log('Manual video progress updated successfully');
       res.json(playlist);
     } else {
-      // Handle YouTube video completion (existing logic)
       if (!videoId) {
         return res.status(400).json({ message: 'Video ID is required for YouTube playlists' });
       }
 
-      // Find and update the video
       const video = playlist.videos.find(v => v.videoId === videoId);
       if (!video) {
-        console.log('Video not found in playlist:', { videoId, availableVideos: playlist.videos.map(v => v.videoId) });
         return res.status(404).json({ message: 'Video not found' });
       }
 
-      console.log('Found video:', { videoId: video.videoId, title: video.title, currentStatus: video.completed, newStatus: completed });
-
-      // Update video completion status
       video.completed = completed;
       video.completionDate = completed ? new Date() : null;
 
       await playlist.save();
-      console.log('YouTube video progress updated successfully');
       res.json(playlist);
     }
   } catch (error) {
-    console.error('Update video progress error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// @desc    Update manual playlist total videos
-// @route   PATCH /api/playlists/:playlistId/total
-// @access  Private
 const updateManualPlaylistTotal = async (req, res) => {
   try {
     const { playlistId } = req.params;
@@ -223,7 +177,6 @@ const updateManualPlaylistTotal = async (req, res) => {
       return res.status(400).json({ message: 'Can only update total videos for manual playlists' });
     }
 
-    // Remove completed videos that exceed the new total
     playlist.completedVideos = playlist.completedVideos.filter(cv => cv.videoIndex < totalVideos);
     
     playlist.manualTotalVideos = totalVideos;
@@ -233,20 +186,15 @@ const updateManualPlaylistTotal = async (req, res) => {
     await playlist.save();
     res.json(playlist);
   } catch (error) {
-    console.error('Update manual playlist total error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// @desc    Delete playlist
-// @route   DELETE /api/playlists/:playlistId
-// @access  Private
 const deletePlaylist = async (req, res) => {
   try {
     const { playlistId } = req.params;
     const userId = req.user._id;
 
-    // Find playlist by MongoDB _id (not YouTube playlistId)
     const playlist = await Playlist.findOneAndDelete({ _id: playlistId, userId });
     if (!playlist) {
       return res.status(404).json({ message: 'Playlist not found' });
@@ -254,12 +202,10 @@ const deletePlaylist = async (req, res) => {
 
     res.json({ message: 'Playlist deleted successfully' });
   } catch (error) {
-    console.error('Delete playlist error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Helper function to extract playlist ID from YouTube URL
 const extractPlaylistId = (url) => {
   try {
     const urlObj = new URL(url);
@@ -273,7 +219,6 @@ const extractPlaylistId = (url) => {
   }
 };
 
-// Helper function to fetch playlist from YouTube API
 const fetchPlaylistFromYouTube = async (playlistId) => {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
@@ -286,7 +231,7 @@ const fetchPlaylistFromYouTube = async (playlistId) => {
     const videos = [];
     let nextPageToken = null;
     let pageCount = 0;
-    const maxPages = 10; // Limit to prevent excessive API calls
+    const maxPages = 10;
 
     do {
       const response = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', {
@@ -308,7 +253,6 @@ const fetchPlaylistFromYouTube = async (playlistId) => {
           const thumbnail = snippet?.thumbnails?.medium?.url || snippet?.thumbnails?.default?.url || '';
 
           if (!videoId) {
-            // Skip rows without a video id (e.g., removed/invalid entries)
             return null;
           }
 
@@ -329,13 +273,11 @@ const fetchPlaylistFromYouTube = async (playlistId) => {
       nextPageToken = response.data.nextPageToken;
       pageCount++;
 
-      // Add small delay between API calls
       if (nextPageToken && pageCount < maxPages) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
     } while (nextPageToken && pageCount < maxPages);
 
-    // Get playlist title - fallback to generic if unavailable
     const playlistTitle = videos.length > 0 ? `Playlist (${videos.length} videos)` : 'Untitled Playlist';
 
     return {
@@ -343,7 +285,6 @@ const fetchPlaylistFromYouTube = async (playlistId) => {
       videos,
     };
   } catch (error) {
-    // Normalize YouTube error messages for the client
     let message = 'Failed to fetch playlist from YouTube';
     const statusCode = error.response?.status || 400;
     const ytMessage = error.response?.data?.error?.message;
@@ -359,7 +300,6 @@ const fetchPlaylistFromYouTube = async (playlistId) => {
   }
 };
 
-// Helper function to group videos by day
 const groupVideosByDay = (videos, videosPerDay) => {
   return videos.map((video, index) => ({
     ...video,

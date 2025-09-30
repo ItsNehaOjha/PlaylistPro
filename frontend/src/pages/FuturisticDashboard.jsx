@@ -55,7 +55,7 @@ const FuturisticDashboard = () => {
   
   // State for dynamic data
   const [playlists, setPlaylists] = useState([]);
-  const [sessions, setSessions] = useState([]);
+  // Remove: const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quickStats, setQuickStats] = useState([
     { label: 'Study Streak', value: '0 days', icon: Zap, color: '#00D4FF' },
@@ -101,9 +101,15 @@ const FuturisticDashboard = () => {
       console.error('Error fetching data:', error);
       // If sessions API fails, still try to fetch playlists
       try {
+        // Fetch playlists only
         const playlistResponse = await api.get('/playlists');
+        // Remove: api.get(`/scheduler/sessions/${user._id}`)
+        
         const playlistData = playlistResponse.data;
+        // Remove: const sessionData = sessionResponse.data.data || [];
+        
         setPlaylists(playlistData);
+        // Remove: setSessions(sessionData);
         calculateStats(playlistData, []);
       } catch (playlistError) {
         console.error('Error fetching playlists:', playlistError);
@@ -193,7 +199,7 @@ const FuturisticDashboard = () => {
     return streak;
   };
 
-  // Dynamic features based on playlist and session data
+  // Dynamic features based on playlist data only
   const features = [
     {
       title: 'Playlist Tracker',
@@ -218,19 +224,7 @@ const FuturisticDashboard = () => {
       },
       category: 'Learning',
     },
-    {
-      title: 'Dynamic Scheduler',
-      description: 'Auto-Calculation Of: - How many videos you need to watch per day, Total study duration,  Daily allocation based on your timeline ',
-      icon: Calendar,
-      color: '#10B981',
-      path: '/scheduler',
-      available: true,
-      stats: { 
-        completed: sessions.filter(session => session.status === 'completed').length,
-        total: Math.max(sessions.length, 1) // Ensure at least 1 to avoid division by zero
-      },
-      category: 'Planning',
-    },
+    // Remove Dynamic Scheduler feature object
     {
       title: 'Quiz Generator',
       description: 'Generate quizzes from your video content',
@@ -261,16 +255,7 @@ const FuturisticDashboard = () => {
       stats: { completed: 0, total: 5 },
       category: 'Social',
     },
-    {
-      title: 'Smart Notes',
-      description: 'AI-powered note-taking from video transcripts',
-      icon: Star,
-      color: '#EF4444',
-      path: null,
-      available: false,
-      stats: { completed: 0, total: 30 },
-      category: 'Notes',
-    },
+    
   ];
 
   return (
@@ -398,14 +383,180 @@ const FuturisticDashboard = () => {
           Learning Modules
         </Typography>
 
-        {/* First Row - Available Features */}
+        {/* First Row - Playlist Tracker Only */}
         <Grid container spacing={4} sx={{ mb: 6, justifyContent: 'center' }}>
-          {features.slice(0, 2).map((feature, index) => {
+          {features.slice(0, 1).map((feature, index) => {
             const Icon = feature.icon;
             const progressPercentage = (feature.stats.completed / feature.stats.total) * 100;
             
             return (
-              <Grid item xs={12} sm={8} md={5} lg={4} key={index}>
+              <Grid item xs={12} sm={10} md={8} lg={6} key={index}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    maxWidth: '500px',
+                    mx: 'auto',
+                    background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(255, 107, 53, 0.05) 100%)',
+                    border: '1px solid rgba(0, 212, 255, 0.3)',
+                    '&:hover': {
+                      '& .circuit-line': {
+                        opacity: 1,
+                      },
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 20px 40px rgba(0, 212, 255, 0.2)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  {/* Circuit line animation */}
+                  <Box
+                    className="circuit-line"
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '3px',
+                      background: `linear-gradient(90deg, transparent, ${feature.color}, transparent)`,
+                      opacity: 0,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                  />
+                  
+                  <CardContent sx={{ p: 5, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    {/* Header */}
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 4 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <Box
+                          sx={{
+                            p: 3,
+                            borderRadius: '16px',
+                            background: `${feature.color}20`,
+                            border: `2px solid ${feature.color}40`,
+                          }}
+                        >
+                          <Icon size={40} color={feature.color} />
+                        </Box>
+                        <Box>
+                          <Typography
+                            variant="h4"
+                            sx={{
+                              fontWeight: 700,
+                              color: '#E2E8F0',
+                              mb: 1,
+                            }}
+                          >
+                            {feature.title}
+                          </Typography>
+                          <Chip
+                            label={feature.category}
+                            size="medium"
+                            sx={{
+                              backgroundColor: `${feature.color}30`,
+                              color: feature.color,
+                              border: `1px solid ${feature.color}60`,
+                              fontSize: '0.8rem',
+                              fontWeight: 600,
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                      
+                      <CircularProgressRing
+                        value={progressPercentage}
+                        size={80}
+                        thickness={6}
+                        showPercentage={true}
+                      />
+                    </Box>
+
+                    {/* Description */}
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: '#94A3B8',
+                        mb: 4,
+                        flexGrow: 1,
+                        lineHeight: 1.7,
+                        fontSize: '1.1rem',
+                      }}
+                    >
+                      {feature.description}
+                    </Typography>
+
+                    {/* Stats */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                      <Typography variant="h6" sx={{ color: '#94A3B8' }}>
+                        Progress: {feature.stats.completed}/{feature.stats.total}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: feature.color,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {Math.round(progressPercentage)}% Complete
+                      </Typography>
+                    </Box>
+
+                    {/* Action Button */}
+                    <Button
+                      variant="contained"
+                      size="large"
+                      onClick={() => navigate(feature.path)}
+                      disabled={!feature.available}
+                      sx={{
+                        background: feature.available 
+                          ? `linear-gradient(135deg, ${feature.color} 0%, ${feature.color}CC 100%)`
+                          : 'rgba(148, 163, 184, 0.1)',
+                        color: feature.available ? '#000' : '#64748B',
+                        fontWeight: 600,
+                        py: 1.5,
+                        borderRadius: '12px',
+                        textTransform: 'none',
+                        fontSize: '1.1rem',
+                        '&:hover': {
+                          background: feature.available 
+                            ? `linear-gradient(135deg, ${feature.color}DD 0%, ${feature.color}AA 100%)`
+                            : 'rgba(148, 163, 184, 0.1)',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {feature.available ? 'Launch Module' : 'Coming Soon'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
+
+        {/* Second Section - Upcoming Features */}
+        <Typography
+          variant="h3"
+          sx={{
+            mb: 4,
+            textAlign: 'center',
+            color: '#94A3B8',
+            fontWeight: 600,
+          }}
+        >
+          Upcoming Features
+        </Typography>
+
+        {/* Remaining Features Grid */}
+        <Grid container spacing={4} sx={{ justifyContent: 'center' }}>
+          {features.slice(1).map((feature, index) => {
+            const Icon = feature.icon;
+            const progressPercentage = (feature.stats.completed / feature.stats.total) * 100;
+            
+            return (
+              <Grid item xs={12} sm={8} md={6} lg={4} key={index}>
                 <Card
                   sx={{
                     height: '100%',
@@ -413,13 +564,16 @@ const FuturisticDashboard = () => {
                     overflow: 'hidden',
                     maxWidth: '400px',
                     mx: 'auto',
+                    opacity: 0.7,
                     '&:hover': {
                       '& .circuit-line': {
                         opacity: 1,
                       },
+                      opacity: 0.9,
+                      transform: 'translateY(-2px)',
                     },
+                    transition: 'all 0.3s ease',
                   }}
-                  // Remove the onClick handler from the Card
                 >
                   {/* Circuit line animation */}
                   <Box
@@ -513,164 +667,23 @@ const FuturisticDashboard = () => {
 
                     {/* Action Button */}
                     <Button
-                      fullWidth
-                      variant="contained"
+                      variant="outlined"
+                      size="medium"
                       disabled={!feature.available}
-                      onClick={() => feature.available && navigate(feature.path)}
                       sx={{
-                        background: feature.available 
-                          ? `linear-gradient(135deg, ${feature.color} 0%, ${feature.color}CC 100%)`
-                          : 'rgba(148, 163, 184, 0.2)',
-                        color: feature.available ? '#0A0E1A' : '#94A3B8',
+                        borderColor: `${feature.color}40`,
+                        color: '#64748B',
                         fontWeight: 600,
-                        py: 1.5,
-                        borderRadius: '12px',
+                        py: 1,
+                        borderRadius: '8px',
                         textTransform: 'none',
-                        border: 'none',
                         '&:hover': {
-                          background: feature.available 
-                            ? `linear-gradient(135deg, ${feature.color}DD 0%, ${feature.color} 100%)`
-                            : 'rgba(148, 163, 184, 0.2)',
-                          transform: feature.available ? 'translateY(-2px)' : 'none',
-                        },
-                        '&:disabled': {
-                          color: '#94A3B8',
+                          borderColor: `${feature.color}60`,
+                          backgroundColor: `${feature.color}10`,
                         },
                       }}
                     >
                       {feature.available ? 'Launch Module' : 'Coming Soon'}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
-
-        {/* Upcoming Features Section */}
-        <Typography
-          variant="h3"
-          sx={{
-            mb: 4,
-            textAlign: 'center',
-            color: '#94A3B8',
-            fontWeight: 600,
-          }}
-        >
-          Upcoming Features
-        </Typography>
-
-        {/* Second Row - Upcoming Features (Smaller Cards) */}
-        <Grid container spacing={3}>
-          {features.slice(2).map((feature, index) => {
-            const Icon = feature.icon;
-            const progressPercentage = (feature.stats.completed / feature.stats.total) * 100;
-            
-            return (
-              <Grid item xs={12} sm={6} md={3} key={index + 2}>
-                <Card 
-                  className="glass-card group"
-                  sx={{
-                    height: '100%',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    opacity: 0.7,
-                    '&:hover': {
-                      opacity: 1,
-                      '& .circuit-line': {
-                        opacity: 1,
-                      },
-                    },
-                  }}
-                >
-                  {/* Circuit line animation */}
-                  <Box
-                    className="circuit-line"
-                    sx={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '2px',
-                      background: `linear-gradient(90deg, transparent, ${feature.color}, transparent)`,
-                      opacity: 0,
-                      transition: 'opacity 0.3s ease',
-                    }}
-                  />
-                  
-                  <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    {/* Header */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                      <Box
-                        sx={{
-                          p: 1.5,
-                          borderRadius: '10px',
-                          background: `${feature.color}20`,
-                          border: `1px solid ${feature.color}40`,
-                        }}
-                      >
-                        <Icon size={24} color={feature.color} />
-                      </Box>
-                    </Box>
-
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 600,
-                        color: '#E2E8F0',
-                        mb: 1,
-                        textAlign: 'center',
-                        fontSize: '1rem',
-                      }}
-                    >
-                      {feature.title}
-                    </Typography>
-
-                    <Chip
-                      label={feature.category}
-                      size="small"
-                      sx={{
-                        backgroundColor: `${feature.color}20`,
-                        color: feature.color,
-                        border: `1px solid ${feature.color}40`,
-                        fontSize: '0.65rem',
-                        alignSelf: 'center',
-                        mb: 2,
-                      }}
-                    />
-
-                    {/* Description */}
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: '#94A3B8',
-                        mb: 2,
-                        flexGrow: 1,
-                        lineHeight: 1.4,
-                        textAlign: 'center',
-                        fontSize: '0.8rem',
-                      }}
-                    >
-                      {feature.description}
-                    </Typography>
-
-                    {/* Action Button */}
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      disabled
-                      size="small"
-                      sx={{
-                        border: `1px solid ${feature.color}40`,
-                        color: '#94A3B8',
-                        fontWeight: 500,
-                        py: 1,
-                        borderRadius: '8px',
-                        textTransform: 'none',
-                        fontSize: '0.75rem',
-                      }}
-                    >
-                      Coming Soon
                     </Button>
                   </CardContent>
                 </Card>
@@ -732,10 +745,8 @@ const FuturisticDashboard = () => {
               Start Learning
             </Button>
             <BrainIcon size="large" animated={true} />
-            <Button
-              variant="outlined"
-              size="large"
-              onClick={() => navigate('/scheduler')}
+            // Remove scheduler navigation
+            // onClick={() => navigate('/scheduler')}
               sx={{
                 border: '1px solid rgba(0, 212, 255, 0.4)',
                 color: '#00D4FF',

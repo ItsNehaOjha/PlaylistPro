@@ -37,14 +37,7 @@ const Dashboard = () => {
       path: '/playlists',
       available: true,
     },
-    {
-      title: 'Dynamic Scheduler',
-      description: 'Plan your study sessions with smart daily allocation and calendar view.',
-      icon: <CalendarToday sx={{ fontSize: 48, color: '#764ba2' }} />,
-      color: '#764ba2',
-      path: '/scheduler',
-      available: true,
-    },
+    // Remove Dynamic Scheduler feature object
     {
       title: 'Quiz Generator',
       description: 'Create and take practice quizzes to test your knowledge.',
@@ -61,14 +54,7 @@ const Dashboard = () => {
       path: null,
       available: false,
     },
-    {
-      title: 'Smart Notes',
-      description: 'Manage your tasks and take notes in one organized place.',
-      icon: <NoteAdd sx={{ fontSize: 48, color: '#43e97b' }} />,
-      color: '#43e97b',
-      path: null,
-      available: false,
-    },
+    
   ];
 
   const handleFeatureClick = (feature) => {

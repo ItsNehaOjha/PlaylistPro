@@ -1,5 +1,17 @@
 {
+  "name": "gatetracker-fullstack",
+  "version": "1.0.0",
+  "description": "Full-stack Learning Progress Tracker",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm start",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "install-deps": "cd backend && npm install && cd ../frontend && npm install"
+  },
   "dependencies": {
     "lucide-react": "^0.544.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }

@@ -61,7 +61,7 @@ const FuturisticNavbar = () => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/playlists', label: 'Playlists', icon: PlayCircle },
-    { path: '/scheduler', label: 'Scheduler', icon: Calendar },
+    // Remove: { path: '/scheduler', label: 'Scheduler', icon: Calendar },
   ];
 
   return (

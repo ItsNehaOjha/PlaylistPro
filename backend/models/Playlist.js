@@ -112,7 +112,16 @@ const playlistSchema = new mongoose.Schema({
 // Compound index to ensure unique playlists per user (only for YouTube)
 playlistSchema.index({ userId: 1, playlistId: 1 }, { 
   unique: true, 
-  sparse: true // Allows null/undefined values
+  sparse: true,
+  partialFilterExpression: { playlistId: { $exists: true, $ne: null } },
+  name: 'youtube_playlists_unique'
+});
+
+// Separate index for manual playlists to ensure unique tracker titles per user
+playlistSchema.index({ userId: 1, trackerTitle: 1, sourceType: 1 }, { 
+  unique: true,
+  partialFilterExpression: { sourceType: 'manual' },
+  name: 'manual_playlists_unique'
 });
 
 // Virtual for completion stats (works for both YouTube and manual)

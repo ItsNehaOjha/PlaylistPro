@@ -11,7 +11,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import FuturisticDashboard from './pages/FuturisticDashboard';
 import MultiPlaylistDashboard from './pages/MultiPlaylistDashboard';
-import DynamicScheduler from './pages/DynamicScheduler';
+// Remove: import DynamicScheduler from './pages/DynamicScheduler';
 
 // Components
 import FuturisticNavbar from './components/FuturisticNavbar';
@@ -104,15 +104,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
-        <Route 
-          path="/scheduler" 
-          element={
-            <ProtectedRoute>
-              <FuturisticNavbar />
-              <DynamicScheduler />
-            </ProtectedRoute>
-          } 
-        />
+        {/* Remove scheduler route */}
         
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" />} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createApiInstance } from '../utils/api';
 import {
   Container,
   Typography,
@@ -58,6 +59,10 @@ const MultiPlaylistDashboard = () => {
   const [editingPlaylist, setEditingPlaylist] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
   
+  // Performance optimization states
+  const [updatingVideos, setUpdatingVideos] = useState(new Set());
+  const [pendingUpdates, setPendingUpdates] = useState(new Map());
+  
   // Form states
   const [sourceType, setSourceType] = useState('youtube');
   const [playlistUrl, setPlaylistUrl] = useState('');
@@ -65,13 +70,8 @@ const MultiPlaylistDashboard = () => {
   const [videosPerDay, setVideosPerDay] = useState(5);
   const [manualTotalVideos, setManualTotalVideos] = useState(10);
 
-  // API configuration
-  const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  // API configuration - Updated
+  const api = createApiInstance(token);
 
   // Fetch playlists function
   const fetchPlaylists = async () => {
@@ -80,7 +80,6 @@ const MultiPlaylistDashboard = () => {
       const response = await api.get('/playlists');
       setPlaylists(response.data);
     } catch (error) {
-      console.error('Error fetching playlists:', error);
       toast.error('Failed to fetch playlists');
     } finally {
       setLoading(false);
@@ -138,7 +137,6 @@ const MultiPlaylistDashboard = () => {
       
       toast.success('Playlist added successfully!');
     } catch (error) {
-      console.error('Error adding playlist:', error);
       toast.error(error.response?.data?.message || 'Failed to add playlist');
     } finally {
       setLoading(false);
@@ -151,71 +149,321 @@ const MultiPlaylistDashboard = () => {
       await fetchPlaylists();
       toast.success('Playlist deleted successfully!');
     } catch (error) {
-      console.error('Error deleting playlist:', error);
       toast.error(error.response?.data?.message || 'Failed to delete playlist');
     }
   };
 
+  // Optimized video toggle with optimistic updates
   const handleVideoToggle = async (playlistId, videoId, completed, videoIndex) => {
+    const videoKey = videoId || `manual-${videoIndex}`;
+    const updateKey = `${playlistId}-${videoKey}`;
+    
+    // Prevent multiple simultaneous updates for the same video
+    if (updatingVideos.has(updateKey)) {
+      return;
+    }
+
     try {
+      // Add to updating set
+      setUpdatingVideos(prev => new Set(prev).add(updateKey));
+      
+      // Optimistic UI update - update local state immediately
+      setPlaylists(prevPlaylists => {
+        return prevPlaylists.map(playlist => {
+          if (playlist._id !== playlistId) return playlist;
+          
+          if (playlist.sourceType === 'manual') {
+            // Handle manual playlist
+            const newCompletedVideos = completed 
+              ? [...(playlist.completedVideos || []), { videoIndex, completedAt: new Date() }]
+              : (playlist.completedVideos || []).filter(cv => cv.videoIndex !== videoIndex);
+            
+            return {
+              ...playlist,
+              completedVideos: newCompletedVideos,
+              completedVideosCount: newCompletedVideos.length,
+              completionPercentage: Math.round((newCompletedVideos.length / playlist.totalVideos) * 100)
+            };
+          } else {
+            // Handle YouTube playlist
+            const updatedVideos = playlist.videos.map(video => {
+              if (video.videoId === videoId) {
+                return {
+                  ...video,
+                  completed,
+                  completionDate: completed ? new Date() : null
+                };
+              }
+              return video;
+            });
+            
+            const completedCount = updatedVideos.filter(v => v.completed && !v.isPrivate).length;
+            const totalAvailable = updatedVideos.filter(v => !v.isPrivate).length;
+            
+            return {
+              ...playlist,
+              videos: updatedVideos,
+              completedVideosCount: completedCount,
+              completionPercentage: totalAvailable > 0 ? Math.round((completedCount / totalAvailable) * 100) : 0
+            };
+          }
+        });
+      });
+
+      // Make API call in background
       const payload = {
         completed,
         ...(videoId ? { videoId } : { videoIndex })
       };
 
       await api.patch(`/playlists/${playlistId}`, payload);
-      await fetchPlaylists();
+      
+      // Success - no need to refetch, optimistic update was correct
+      
     } catch (error) {
-      console.error('Error toggling video:', error);
+      // Rollback optimistic update on error
+      setPlaylists(prevPlaylists => {
+        return prevPlaylists.map(playlist => {
+          if (playlist._id !== playlistId) return playlist;
+          
+          if (playlist.sourceType === 'manual') {
+            // Rollback manual playlist
+            const newCompletedVideos = !completed 
+              ? [...(playlist.completedVideos || []), { videoIndex, completedAt: new Date() }]
+              : (playlist.completedVideos || []).filter(cv => cv.videoIndex !== videoIndex);
+            
+            return {
+              ...playlist,
+              completedVideos: newCompletedVideos,
+              completedVideosCount: newCompletedVideos.length,
+              completionPercentage: Math.round((newCompletedVideos.length / playlist.totalVideos) * 100)
+            };
+          } else {
+            // Rollback YouTube playlist
+            const updatedVideos = playlist.videos.map(video => {
+              if (video.videoId === videoId) {
+                return {
+                  ...video,
+                  completed: !completed,
+                  completionDate: !completed ? new Date() : null
+                };
+              }
+              return video;
+            });
+            
+            const completedCount = updatedVideos.filter(v => v.completed && !v.isPrivate).length;
+            const totalAvailable = updatedVideos.filter(v => !v.isPrivate).length;
+            
+            return {
+              ...playlist,
+              videos: updatedVideos,
+              completedVideosCount: completedCount,
+              completionPercentage: totalAvailable > 0 ? Math.round((completedCount / totalAvailable) * 100) : 0
+            };
+          }
+        });
+      });
+      
       toast.error(error.response?.data?.message || 'Failed to update video status');
+    } finally {
+      // Remove from updating set
+      setUpdatingVideos(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(updateKey);
+        return newSet;
+      });
     }
   };
 
-  const handleCheckAllInDay = async (playlistId, dayNumber) => {
+  // Optimized batch operations for day completion
+  const handleCheckAllInDay = async (playlistId, dayNumber, dayItems, videosPerDay) => {
     try {
       const playlist = playlists.find(p => p._id === playlistId);
       if (!playlist) return;
 
-      const dayVideos = playlist.videos.filter(v => v.dayNumber === dayNumber && !v.isPrivate);
-      
-      for (const video of dayVideos) {
-        if (!video.completed) {
-          await api.patch(`/playlists/${playlistId}`, {
-            videoId: video.videoId,
-            completed: true
-          });
+      if (playlist.sourceType === 'manual') {
+        // Get all uncompleted items in this day
+        const uncompletedItems = dayItems.filter(item => !item.isCompleted);
+        
+        if (uncompletedItems.length === 0) {
+          toast.info('All items in this day are already completed!');
+          return;
         }
+
+        // Optimistic update
+        setPlaylists(prevPlaylists => {
+          return prevPlaylists.map(p => {
+            if (p._id !== playlistId) return p;
+            
+            const newCompletedVideos = [...(p.completedVideos || [])];
+            uncompletedItems.forEach(item => {
+              if (!newCompletedVideos.some(cv => cv.videoIndex === item.index)) {
+                newCompletedVideos.push({ videoIndex: item.index, completedAt: new Date() });
+              }
+            });
+            
+            return {
+              ...p,
+              completedVideos: newCompletedVideos,
+              completedVideosCount: newCompletedVideos.length,
+              completionPercentage: Math.round((newCompletedVideos.length / p.totalVideos) * 100)
+            };
+          });
+        });
+
+        // Make API calls for each uncompleted item
+        const promises = uncompletedItems.map(item => 
+          api.patch(`/playlists/${playlistId}`, {
+            completed: true,
+            videoIndex: item.index
+          })
+        );
+
+        await Promise.all(promises);
+        toast.success(`Marked ${uncompletedItems.length} items as completed!`);
+      } else {
+        // Handle YouTube playlists (existing logic)
+        const dayVideos = playlist.videos.filter(v => v.dayNumber === parseInt(dayNumber));
+        const uncompletedVideos = dayVideos.filter(v => !v.completed && !v.isPrivate);
+        
+        if (uncompletedVideos.length === 0) {
+          toast.info('All videos in this day are already completed!');
+          return;
+        }
+
+        // Optimistic update for YouTube
+        setPlaylists(prevPlaylists => {
+          return prevPlaylists.map(p => {
+            if (p._id !== playlistId) return p;
+            
+            const updatedVideos = p.videos.map(video => {
+              if (video.dayNumber === parseInt(dayNumber) && !video.completed && !video.isPrivate) {
+                return { ...video, completed: true, completionDate: new Date() };
+              }
+              return video;
+            });
+            
+            const completedCount = updatedVideos.filter(v => v.completed && !v.isPrivate).length;
+            const totalAvailable = updatedVideos.filter(v => !v.isPrivate).length;
+            
+            return {
+              ...p,
+              videos: updatedVideos,
+              completedVideosCount: completedCount,
+              completionPercentage: totalAvailable > 0 ? Math.round((completedCount / totalAvailable) * 100) : 0
+            };
+          });
+        });
+
+        // Make API calls for YouTube videos
+        const promises = uncompletedVideos.map(video => 
+          api.patch(`/playlists/${playlistId}`, {
+            completed: true,
+            videoId: video.videoId
+          })
+        );
+
+        await Promise.all(promises);
+        toast.success(`Marked ${uncompletedVideos.length} videos as completed!`);
       }
-      
-      await fetchPlaylists();
-      toast.success(`All videos in Day ${dayNumber} marked as complete!`);
     } catch (error) {
-      console.error('Error checking all videos in day:', error);
-      toast.error(error.response?.data?.message || 'Failed to update videos');
+      toast.error('Failed to update some items');
+      // Refresh to get correct state
+      await fetchPlaylists();
     }
   };
 
-  const handleUncheckAllInDay = async (playlistId, dayNumber) => {
+  const handleUncheckAllInDay = async (playlistId, dayNumber, dayItems, videosPerDay) => {
     try {
       const playlist = playlists.find(p => p._id === playlistId);
       if (!playlist) return;
 
-      const dayVideos = playlist.videos.filter(v => v.dayNumber === dayNumber && !v.isPrivate);
-      
-      for (const video of dayVideos) {
-        if (video.completed) {
-          await api.patch(`/playlists/${playlistId}`, {
-            videoId: video.videoId,
-            completed: false
-          });
+      if (playlist.sourceType === 'manual') {
+        // Get all completed items in this day
+        const completedItems = dayItems.filter(item => item.isCompleted);
+        
+        if (completedItems.length === 0) {
+          toast.info('No completed items in this day to clear!');
+          return;
         }
+
+        // Optimistic update
+        setPlaylists(prevPlaylists => {
+          return prevPlaylists.map(p => {
+            if (p._id !== playlistId) return p;
+            
+            const newCompletedVideos = (p.completedVideos || []).filter(cv => 
+              !completedItems.some(item => item.index === cv.videoIndex)
+            );
+            
+            return {
+              ...p,
+              completedVideos: newCompletedVideos,
+              completedVideosCount: newCompletedVideos.length,
+              completionPercentage: Math.round((newCompletedVideos.length / p.totalVideos) * 100)
+            };
+          });
+        });
+
+        // Make API calls for each completed item
+        const promises = completedItems.map(item => 
+          api.patch(`/playlists/${playlistId}`, {
+            completed: false,
+            videoIndex: item.index
+          })
+        );
+
+        await Promise.all(promises);
+        toast.success(`Cleared ${completedItems.length} items!`);
+      } else {
+        // Handle YouTube playlists (existing logic)
+        const dayVideos = playlist.videos.filter(v => v.dayNumber === parseInt(dayNumber));
+        const completedVideos = dayVideos.filter(v => v.completed && !v.isPrivate);
+        
+        if (completedVideos.length === 0) {
+          toast.info('No completed videos in this day to clear!');
+          return;
+        }
+
+        // Optimistic update for YouTube
+        setPlaylists(prevPlaylists => {
+          return prevPlaylists.map(p => {
+            if (p._id !== playlistId) return p;
+            
+            const updatedVideos = p.videos.map(video => {
+              if (video.dayNumber === parseInt(dayNumber) && video.completed && !video.isPrivate) {
+                return { ...video, completed: false, completionDate: null };
+              }
+              return video;
+            });
+            
+            const completedCount = updatedVideos.filter(v => v.completed && !v.isPrivate).length;
+            const totalAvailable = updatedVideos.filter(v => !v.isPrivate).length;
+            
+            return {
+              ...p,
+              videos: updatedVideos,
+              completedVideosCount: completedCount,
+              completionPercentage: totalAvailable > 0 ? Math.round((completedCount / totalAvailable) * 100) : 0
+            };
+          });
+        });
+
+        // Make API calls for YouTube videos
+        const promises = completedVideos.map(video => 
+          api.patch(`/playlists/${playlistId}`, {
+            completed: false,
+            videoId: video.videoId
+          })
+        );
+
+        await Promise.all(promises);
+        toast.success(`Cleared ${completedVideos.length} videos!`);
       }
-      
-      await fetchPlaylists();
-      toast.success(`All videos in Day ${dayNumber} cleared!`);
     } catch (error) {
-      console.error('Error unchecking all videos in day:', error);
-      toast.error(error.response?.data?.message || 'Failed to update videos');
+      toast.error('Failed to update some items');
+      // Refresh to get correct state
+      await fetchPlaylists();
     }
   };
 
@@ -227,7 +475,6 @@ const MultiPlaylistDashboard = () => {
       await fetchPlaylists();
       toast.success('Manual playlist total updated successfully!');
     } catch (error) {
-      console.error('Error updating manual total:', error);
       toast.error(error.response?.data?.message || 'Failed to update total');
     }
   };
@@ -242,14 +489,23 @@ const MultiPlaylistDashboard = () => {
   return (
     <Container maxWidth="lg" >
       {/* Header Section */}
-      <Box sx={{ mb: 3 }}>
+      
+      <Box sx={{ 
+        mt: 4,
+        mb: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center'
+      }}>
         <Typography 
-          variant="h4" 
-          component="h1" 
+          variant="h2" 
+          component="h2" 
           sx={{
             color: '#FFFFFF',
-            fontWeight: 600,
+            fontWeight: 400,
             mb: 1,
+            mt: 3,
             fontFamily: "'Inter', sans-serif"
           }}
         >
@@ -266,55 +522,34 @@ const MultiPlaylistDashboard = () => {
           Track your progress across multiple YouTube playlists and manual sources
         </Typography>
         
-        {/* Action Buttons */}
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setAddDialogOpen(true)}
-            sx={{
-              backgroundColor: '#3B82F6',
-              color: '#FFFFFF',
-              borderRadius: '8px',
-              px: 3,
-              py: 1,
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 500,
-              textTransform: 'none',
-              boxShadow: 'none',
-              '&:hover': {
-                backgroundColor: '#2563EB',
-                boxShadow: 'none'
-              }
-            }}
-          >
-            Add Playlist
-          </Button>
-
-          <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={fetchPlaylists}
-            disabled={loading}
-            sx={{
-              borderColor: '#374151',
-              color: '#9CA3AF',
-              borderRadius: '8px',
-              px: 3,
-              py: 1.5,
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 500,
-              textTransform: 'none',
-              '&:hover': {
-                borderColor: '#4B5563',
-                backgroundColor: 'rgba(75, 85, 99, 0.1)'
-              }
-            }}
-          >
-            Refresh
-          </Button>
+        {/* Centered Action Button */}
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setAddDialogOpen(true)}
+          sx={{
+            backgroundColor: '#3B82F6',
+            color: 'black',
+            borderRadius: '8px',
+            px: 3,
+            py: 1,
+            fontFamily: "'Inter', sans-serif",
+            fontWeight: 500,
+            textTransform: 'none',
+            boxShadow: 'none',
+            '&:hover': {
+              backgroundColor: '#2563EB',
+              boxShadow: 'none'
+            }
+          }}
+        >
+          Add Playlist
+        </Button>
+      
+       
+          
         </Box>
-      </Box>
+      
 
       {playlists.length === 0 ? (
         <Card sx={{ 
@@ -658,7 +893,7 @@ const MultiPlaylistDashboard = () => {
                                         disabled={dayCompletedVideos === dayTotalVideos}
                                         sx={{
                                           backgroundColor: '#10B981',
-                                          color: '#FFFFFF',
+                                          color: 'black',
                                           textTransform: 'none',
                                           fontSize: '0.8rem',
                                           fontFamily: "'Inter', sans-serif",
@@ -685,7 +920,7 @@ const MultiPlaylistDashboard = () => {
                                         disabled={dayCompletedVideos === 0}
                                         sx={{
                                           backgroundColor: '#F59E0B',
-                                          color: '#FFFFFF',
+                                          color: 'black',
                                           textTransform: 'none',
                                           fontSize: '0.8rem',
                                           fontFamily: "'Inter', sans-serif",
@@ -777,55 +1012,221 @@ const MultiPlaylistDashboard = () => {
                       <Typography variant="h6" sx={{ 
                         color: '#F9FAFB',
                         fontWeight: 600,
-                        mb: 3,
+                        mb: 1.5,  // Reduced from 3
                         fontFamily: "'Inter', sans-serif"
                       }}>
-                        Manual Progress Tracker
+                        Daily Progress
                       </Typography>
                       
-                      <Grid container spacing={2}>
-                        {Array.from({ length: playlist.manualTotalVideos }, (_, index) => {
-                          const isCompleted = playlist.completedVideos?.some(cv => cv.videoIndex === index);
+                      {(() => {
+                        // Group manual items by day based on videosPerDay
+                        const videosPerDay = playlist.videosPerDay || 5;
+                        const totalItems = playlist.manualTotalVideos || 0;
+                        const completedVideos = playlist.completedVideos || [];
+                        
+                        const groupedItems = {};
+                        for (let i = 0; i < totalItems; i++) {
+                          const dayNumber = Math.floor(i / videosPerDay) + 1;
+                          if (!groupedItems[dayNumber]) groupedItems[dayNumber] = [];
+                          groupedItems[dayNumber].push({
+                            index: i,
+                            isCompleted: completedVideos.some(cv => cv.videoIndex === i)
+                          });
+                        }
+
+                        return Object.entries(groupedItems).map(([dayNumber, dayItems]) => {
+                          const dayCompletedItems = dayItems.filter(item => item.isCompleted).length;
+                          const dayTotalItems = dayItems.length;
+                          const dayProgress = dayTotalItems > 0 ? (dayCompletedItems / dayTotalItems) * 100 : 0;
+
                           return (
-                            <Grid item xs={12} sm={6} md={4} key={index}>
-                              <Box
-                                onClick={() => handleVideoToggle(playlist._id, null, !isCompleted, index)}
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 2,
-                                  p: 2,
-                                  borderRadius: '6px',
-                                  backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                                  border: isCompleted ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #374151',
+                            <Box
+                              key={dayNumber}
+                              sx={{
+                                mb: 1,  // Reduced from 2
+                                backgroundColor: '#1F2937',
+                                borderRadius: '8px',
+                                overflow: 'hidden'
+                              }}
+                            >
+                              {/* Compact Day Header */}
+                              <Box 
+                                onClick={() => setExpandedDay(expandedDay === dayNumber ? null : dayNumber)}
+                                sx={{ 
+                                  display: 'flex', 
+                                  justifyContent: 'space-between', 
+                                  alignItems: 'center', 
+                                  p: 1.5,  // Reduced from 3
                                   cursor: 'pointer',
-                                  transition: 'all 0.2s ease',
-                                  '&:hover': {
-                                    backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.05)',
-                                    border: isCompleted ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(59, 130, 246, 0.3)'
-                                  }
+                                  backgroundColor: '#374151',
+                                  borderBottom: expandedDay === dayNumber ? '1px solid #4B5563' : 'none'
                                 }}
                               >
-                                {isCompleted ? (
-                                  <CheckCircleIcon sx={{ color: '#10B981', fontSize: 20 }} />
-                                ) : (
-                                  <RadioButtonUncheckedIcon sx={{ color: '#6B7280', fontSize: 20 }} />
-                                )}
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    color: isCompleted ? '#10B981' : '#F9FAFB',
-                                    fontWeight: isCompleted ? 500 : 400,
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                  <Typography variant="body1" sx={{  // Reduced from h6
+                                    color: '#F9FAFB',
+                                    fontWeight: 600,
                                     fontFamily: "'Inter', sans-serif"
-                                  }}
-                                >
-                                  Item {index + 1}
-                                </Typography>
+                                  }}>
+                                    Day {dayNumber}
+                                  </Typography>
+                                  <Typography variant="body2" sx={{
+                                    color: '#9CA3AF',
+                                    fontFamily: "'Inter', sans-serif",
+                                    fontSize: '0.8rem'
+                                  }}>
+                                    {dayCompletedItems}/{dayTotalItems} completed
+                                  </Typography>
+                                </Box>
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  {/* Compact Progress Bar */}
+                                  <Box sx={{ width: 60, mr: 1 }}>  
+                                    <LinearProgress
+                                      variant="determinate"
+                                      value={dayProgress}
+                                      sx={{
+                                        height: 4,  // Reduced from default
+                                        borderRadius: 2,
+                                        backgroundColor: '#4B5563',
+                                        '& .MuiLinearProgress-bar': {
+                                          backgroundColor: '#10B981',
+                                          borderRadius: 2
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                  
+                                  <Typography variant="body2" sx={{ 
+                                    color: '#3B82F6',
+                                    fontWeight: 500,
+                                    fontFamily: "'Inter', sans-serif",
+                                    fontSize: '0.75rem',
+                                    minWidth: '35px'
+                                  }}>
+                                    {Math.round(dayProgress)}%
+                                  </Typography>
+
+                                  {/* Action Buttons */}
+                                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                    <Button
+                                      size="small"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCheckAllInDay(playlist._id, dayNumber, dayItems, videosPerDay);
+                                      }}
+                                      sx={{
+                                        minWidth: 'auto',
+                                        px: 0.8,
+                                        py: 0.3,
+                                        fontSize: '0.75rem',
+                                        backgroundColor: 'transparent',
+                                        color: 'black',
+                                        fontWeight: 600,
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        textTransform: 'none',
+                                        '&:hover': { 
+                                          backgroundColor: 'transparent',
+                                          color: '#059669',
+                                          transform: 'scale(1.1)'
+                                        },
+                                        '&:active': {
+                                          transform: 'scale(0.9)'
+                                        }
+                                      }}
+                                    >
+                                      ✓ All
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUncheckAllInDay(playlist._id, dayNumber, dayItems, videosPerDay);
+                                      }}
+                                      sx={{
+                                        minWidth: 'auto',
+                                        px: 0.8,
+                                        py: 0.3,
+                                        fontSize: '0.75rem',
+                                        backgroundColor: 'transparent',
+                                        color: '#EF4444',
+                                        fontWeight: 600,
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        textTransform: 'none',
+                                        '&:hover': { 
+                                          backgroundColor: 'transparent',
+                                          color: '#DC2626',
+                                          transform: 'scale(1.1)'
+                                        },
+                                        '&:active': {
+                                          transform: 'scale(0.9)'
+                                        }
+                                      }}
+                                    >
+                                      ✗ Clear
+                                    </Button>
+                                  </Box>
+
+                                  {expandedDay === dayNumber ? (
+                                    <ExpandLessIcon sx={{ color: '#9CA3AF', fontSize: 20 }} />
+                                  ) : (
+                                    <ExpandMoreIcon sx={{ color: '#9CA3AF', fontSize: 20 }} />
+                                  )}
+                                </Box>
                               </Box>
-                            </Grid>
+
+                              {/* Expandable Day Content */}
+                              <Collapse in={expandedDay === dayNumber}>
+                                <Box sx={{ p: 2 }}>
+                                  <Grid container spacing={1.5}>
+                                    {dayItems.map((item) => (
+                                      <Grid item xs={12} sm={6} md={4} key={item.index}>
+                                        <Box
+                                          onClick={() => handleVideoToggle(playlist._id, null, !item.isCompleted, item.index)}
+                                          sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1.5,
+                                            p: 1.5,
+                                            borderRadius: '6px',
+                                            backgroundColor: item.isCompleted ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                                            border: item.isCompleted ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #4B5563',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            '&:hover': {
+                                              backgroundColor: item.isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.05)',
+                                              border: item.isCompleted ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(59, 130, 246, 0.3)'
+                                            }
+                                          }}
+                                        >
+                                          {item.isCompleted ? (
+                                            <CheckCircleIcon sx={{ color: '#10B981', fontSize: 18 }} />
+                                          ) : (
+                                            <RadioButtonUncheckedIcon sx={{ color: '#6B7280', fontSize: 18 }} />
+                                          )}
+                                          <Typography
+                                            variant="body2"
+                                            sx={{
+                                              color: item.isCompleted ? '#10B981' : '#F9FAFB',
+                                              fontWeight: item.isCompleted ? 500 : 400,
+                                              fontFamily: "'Inter', sans-serif",
+                                              fontSize: '0.85rem'
+                                            }}
+                                          >
+                                            Item {item.index + 1}
+                                          </Typography>
+                                        </Box>
+                                      </Grid>
+                                    ))}
+                                  </Grid>
+                                </Box>
+                              </Collapse>
+                            </Box>
                           );
-                        })}
-                      </Grid>
+                        });
+                      })()}
                     </Box>
                   )}
                 </CardContent>

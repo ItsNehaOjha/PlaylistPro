@@ -179,6 +179,8 @@ const Navbar = () => {
               Dynamic Scheduler
             </MenuItem>
             
+            {/* Remove scheduler menu item */}
+            
             <MenuItem onClick={handleLogout}>
               Logout
             </MenuItem>

@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: gatetracker
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        fromDatabase:
+          name: gatetracker-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: EMAIL_HOST
+        value: smtp.mailtrap.io
+      - key: EMAIL_PORT
+        value: 2525
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_FROM
+        value: noreply@gatetracker.com
+
+databases:
+  - name: gatetracker-db
+    plan: free

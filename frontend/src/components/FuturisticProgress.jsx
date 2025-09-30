@@ -62,9 +62,9 @@ export const CircularProgressRing = ({
             component="div"
             sx={{
               fontWeight: 700,
-              background: 'linear-gradient(135deg, #00D4FF 0%, #10B981 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#00D4FF',
+              textShadow: '0 0 10px rgba(0, 212, 255, 0.5)',
+              fontSize: size > 100 ? '1.5rem' : '1.2rem',
             }}
           >
             {`${Math.round(value)}%`}
