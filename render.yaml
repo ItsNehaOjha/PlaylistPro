@@ -3,8 +3,14 @@ services:
     name: playlistpro
     env: node
     plan: free
-    buildCommand: npm run build
-    startCommand: npm start
+    runtime: node
+    buildCommand: |
+      cd frontend && 
+      npm ci && 
+      npm run build && 
+      cd ../backend && 
+      npm ci
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
