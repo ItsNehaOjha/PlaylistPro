@@ -88,8 +88,8 @@ export const AuthProvider = ({ children }) => {
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
-          user: response.data.user,
-          token: response.data.token,
+          user: response.data.data.user,
+          token: response.data.data.token,
         },
       });
       
@@ -110,8 +110,8 @@ export const AuthProvider = ({ children }) => {
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
-          user: response.data.user,
-          token: response.data.token,
+          user: response.data.data.user,
+          token: response.data.data.token,
         },
       });
       
