@@ -3,10 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -21,7 +17,6 @@
     "@mui/material": "^5.14.20",
     "axios": "^1.6.2",
     "lucide-react": "^0.294.0",
-    "playlistpro-fullstack": "file:..",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",

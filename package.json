@@ -13,9 +13,6 @@
     "start": "npm start --prefix backend",
     "deploy": "npm run build && npm run start"
   },
-  "dependencies": {
-    "lucide-react": "^0.544.0"
-  },
   "devDependencies": {
     "concurrently": "^8.2.0",
     "rollup-plugin-visualizer": "^6.0.3"
