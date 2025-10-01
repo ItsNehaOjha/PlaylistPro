@@ -13,7 +13,7 @@ const api = axios.create({
   },
 });
 
-const authAPI = axios.create({
+const authAPIInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const addAuthToken = (config) => {
 };
 
 // Add interceptors to all instances
-[api, authAPI, playlistAPI, schedulerAPI].forEach(instance => {
+[api, authAPIInstance, playlistAPI, schedulerAPI].forEach(instance => {
   instance.interceptors.request.use(addAuthToken);
   
   // Response interceptor for handling auth errors
@@ -70,6 +70,27 @@ const addAuthToken = (config) => {
     }
   );
 });
+
+// Create authAPI object with login and register methods
+const authAPI = {
+  login: async (credentials) => {
+    const response = await authAPIInstance.post('/auth/login', credentials);
+    return response;
+  },
+  register: async (userData) => {
+    const response = await authAPIInstance.post('/auth/register', userData);
+    return response;
+  },
+  // Add other auth methods as needed
+  forgotPassword: async (email) => {
+    const response = await authAPIInstance.post('/auth/forgot-password', { email });
+    return response;
+  },
+  resetPassword: async (token, password) => {
+    const response = await authAPIInstance.post('/auth/reset-password', { token, password });
+    return response;
+  }
+};
 
 export { api, authAPI, playlistAPI, schedulerAPI, createApiInstance };
 export default api;
