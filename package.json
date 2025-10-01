@@ -2,6 +2,10 @@
   "name": "playlistpro-fullstack",
   "version": "1.0.0",
   "description": "PlaylistPro - Comprehensive Learning Progress Tracker",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
     "install-deps": "cd backend && npm install && cd ../frontend && npm install",
