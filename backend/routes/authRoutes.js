@@ -8,6 +8,7 @@ const {
   resetPassword,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
+const { handleValidationErrors } = require('../middleware/validationMiddleware');
 
 const router = express.Router();
 
@@ -33,10 +34,10 @@ const resetPasswordValidation = [
 ];
 
 // Routes
-router.post('/register', registerValidation, registerUser);
-router.post('/login', loginValidation, loginUser);
-router.post('/forgot-password', forgotPasswordValidation, forgotPassword);
-router.post('/reset-password', resetPasswordValidation, resetPassword);
+router.post('/register', registerValidation, handleValidationErrors, registerUser);
+router.post('/login', loginValidation, handleValidationErrors, loginUser);
+router.post('/forgot-password', forgotPasswordValidation, handleValidationErrors, forgotPassword);
+router.post('/reset-password', resetPasswordValidation, handleValidationErrors, resetPassword);
 router.get('/me', protect, getMe);
 
 module.exports = router;

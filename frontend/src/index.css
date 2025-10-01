@@ -8,17 +8,18 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Use system fonts instead of Google Fonts for faster loading */
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #0A0E1A 0%, #1E293B 100%);
+  background: #0A0E1A;
   color: #E2E8F0;
   overflow-x: hidden;
 }
 
-/* Futuristic Background Pattern */
+/* Simplified background - remove heavy gradients */
 body::before {
   content: '';
   position: fixed;
@@ -26,42 +27,41 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    radial-gradient(circle at 25% 25%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
+  background: linear-gradient(135deg, #0A0E1A 0%, #1E293B 100%);
   pointer-events: none;
   z-index: -1;
 }
 
-/* Custom Scrollbar */
+/* Simplified scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: #1E293B;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #00D4FF, #0099CC);
+  background: #00D4FF;
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #4DDBFF, #00D4FF);
-}
-
-/* Glassmorphism utility classes */
+/* Simplified glass effect */
 .glass-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(20px);
+  background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 16px;
 }
 
+/* Remove heavy transitions */
+* {
+  transition: none;
+}
+
+/* Add transitions only where needed */
 .glass-card:hover {
   border-color: rgba(0, 212, 255, 0.4);
-  box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+  transition: border-color 0.2s ease;
 }
 
 /* Neon glow effects */

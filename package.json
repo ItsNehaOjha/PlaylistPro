@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "PlaylistPro - Comprehensive Learning Progress Tracker",
   "scripts": {
-    "build": "npm install --prefix frontend && npm install --prefix backend && npm run build --prefix frontend",
-    "start": "npm start --prefix backend",
-    "build:analyze": "cd frontend && npm run build:analyze",
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
     "install-deps": "cd backend && npm install && cd ../frontend && npm install"
   },

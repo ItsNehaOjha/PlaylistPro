@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import axios from 'axios';
+import { authAPI, api } from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -51,10 +51,10 @@ export const AuthProvider = ({ children }) => {
   // Set auth token header
   useEffect(() => {
     if (state.token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
       localStorage.setItem('token', state.token);
     } else {
-      delete axios.defaults.headers.common['Authorization'];
+      delete api.defaults.headers.common['Authorization'];
       localStorage.removeItem('token');
     }
   }, [state.token]);
@@ -64,9 +64,13 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
       if (state.token) {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`);
+          // Use the correct endpoint /me instead of /verify
+          const response = await api.get('/auth/me', {
+            headers: { Authorization: `Bearer ${state.token}` }
+          });
           dispatch({ type: 'SET_USER', payload: response.data });
         } catch (error) {
+          console.error('Auth check failed:', error);
           dispatch({ type: 'LOGOUT' });
         }
       } else {
@@ -79,21 +83,19 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        email,
-        password,
-      });
+      const response = await authAPI.login({ email, password });
       
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
-          user: response.data,
+          user: response.data.user,
           token: response.data.token,
         },
       });
       
       return { success: true };
     } catch (error) {
+      console.error('Login error:', error);
       return { 
         success: false, 
         message: error.response?.data?.message || 'Login failed' 
@@ -103,22 +105,19 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        name,
-        email,
-        password,
-      });
+      const response = await authAPI.register({ name, email, password });
       
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
-          user: response.data,
+          user: response.data.user,
           token: response.data.token,
         },
       });
       
       return { success: true };
     } catch (error) {
+      console.error('Registration error:', error);
       return { 
         success: false, 
         message: error.response?.data?.message || 'Registration failed' 

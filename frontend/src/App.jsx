@@ -1,55 +1,42 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box, CircularProgress } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './context/AuthContext';
 
-// Lazy load pages with preloading
-const Home = React.lazy(() => import('./pages/Home'));
-const Login = React.lazy(() => import('./pages/Login'));
-const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
-const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
+// Import all required pages
+import Home from './pages/Home';
+import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
+// Lazy load heavy dashboard components
 const FuturisticDashboard = React.lazy(() => import('./pages/FuturisticDashboard'));
 const MultiPlaylistDashboard = React.lazy(() => import('./pages/MultiPlaylistDashboard'));
 
-// Preload critical routes
-const preloadDashboard = () => import('./pages/FuturisticDashboard');
-const preloadPlaylists = () => import('./pages/MultiPlaylistDashboard');
-
-// Components (keep these as regular imports since they're small)
 import FuturisticNavbar from './components/FuturisticNavbar';
 
-// Loading component
+// Simplified loading component
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-    <div className="glass-card p-8 rounded-xl text-center">
-      <CircularProgress 
-        size={48} 
-        sx={{ 
-          color: '#00D4FF',
-          mb: 2
-        }} 
-      />
-      <p className="text-white">Loading your learning journey...</p>
-    </div>
+  <div style={{
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#0A0E1A'
+  }}>
+    <CircularProgress size={40} sx={{ color: '#00D4FF' }} />
   </div>
 );
 
-const ProtectedRoute = ({ children, preload }) => {
+const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
-  // Preload routes when user is authenticated
-  React.useEffect(() => {
-    if (user && preload) {
-      preload();
-    }
-  }, [user, preload]);
   
   if (loading) {
     return <LoadingSpinner />;
   }
   
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }) => {
@@ -59,7 +46,7 @@ const PublicRoute = ({ children }) => {
     return <LoadingSpinner />;
   }
   
-  return user ? <Navigate to="/dashboard" /> : children;
+  return user ? <Navigate to="/dashboard" replace /> : children;
 };
 
 function App() {
@@ -98,11 +85,11 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           
-          {/* Protected Routes with preloading */}
+          {/* Protected Routes */}
           <Route 
             path="/dashboard" 
             element={
-              <ProtectedRoute preload={preloadPlaylists}>
+              <ProtectedRoute>
                 <FuturisticNavbar />
                 <FuturisticDashboard />
               </ProtectedRoute>
@@ -111,7 +98,7 @@ function App() {
           <Route 
             path="/playlists" 
             element={
-              <ProtectedRoute preload={preloadDashboard}>
+              <ProtectedRoute>
                 <FuturisticNavbar />
                 <MultiPlaylistDashboard />
               </ProtectedRoute>
@@ -119,7 +106,7 @@ function App() {
           />
           
           {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
       
