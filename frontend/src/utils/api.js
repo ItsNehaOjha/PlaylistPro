@@ -34,6 +34,17 @@ const schedulerAPI = axios.create({
   },
 });
 
+// Function to create API instance with token
+const createApiInstance = (token) => {
+  return axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : undefined,
+    },
+  });
+};
+
 // Request interceptor to add auth token
 const addAuthToken = (config) => {
   const token = localStorage.getItem('token');
@@ -60,5 +71,5 @@ const addAuthToken = (config) => {
   );
 });
 
-export { api, authAPI, playlistAPI, schedulerAPI };
+export { api, authAPI, playlistAPI, schedulerAPI, createApiInstance };
 export default api;
