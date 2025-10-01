@@ -4,7 +4,10 @@
   "description": "PlaylistPro - Comprehensive Learning Progress Tracker",
   "scripts": {
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
-    "install-deps": "cd backend && npm install && cd ../frontend && npm install"
+    "install-deps": "cd backend && npm install && cd ../frontend && npm install",
+    "build": "npm install --prefix frontend && npm install --prefix backend && npm run build --prefix frontend",
+    "start": "npm start --prefix backend",
+    "deploy": "npm run build && npm run start"
   },
   "dependencies": {
     "lucide-react": "^0.544.0"

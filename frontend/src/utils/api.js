@@ -1,50 +1,64 @@
-// API configuration for PlaylistPro
 import axios from 'axios';
 
-const getBaseURL = () => {
-  if (import.meta.env.PROD) {
-    // In production, API is served from the same domain
-    return '/api';
+// Determine the API base URL based on environment
+const API_BASE_URL = import.meta.env.PROD 
+  ? '/api'  // In production, API is served from the same domain
+  : import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
+// Create axios instances
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+const authAPI = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+const playlistAPI = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+const schedulerAPI = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor to add auth token
+const addAuthToken = (config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  // In development, use the correct port 5001 (not 5000)
-  return import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+  return config;
 };
 
-export const API_BASE_URL = getBaseURL();
+// Add interceptors to all instances
+[api, authAPI, playlistAPI, schedulerAPI].forEach(instance => {
+  instance.interceptors.request.use(addAuthToken);
+  
+  // Response interceptor for handling auth errors
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+      return Promise.reject(error);
+    }
+  );
+});
 
-export const createApiInstance = (token) => {
-  return axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-    timeout: 10000, // 10 second timeout
-  });
-};
-
-// Default API instance
-export const api = createApiInstance();
-
-// Auth API methods
-export const authAPI = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
-  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
-  resetPassword: (token, password) => api.post(`/auth/reset-password`, { token, password }),
-  getMe: (token) => createApiInstance(token).get('/auth/me'),
-};
-
-// Playlist API methods
-export const playlistAPI = {
-  getPlaylists: (token) => createApiInstance(token).get('/playlists'),
-  createPlaylist: (playlistData, token) => createApiInstance(token).post('/playlists', playlistData),
-  updatePlaylist: (id, playlistData, token) => createApiInstance(token).put(`/playlists/${id}`, playlistData),
-  deletePlaylist: (id, token) => createApiInstance(token).delete(`/playlists/${id}`),
-};
-
-// Scheduler API methods
-export const schedulerAPI = {
-  getSessions: (token) => createApiInstance(token).get('/scheduler/sessions'),
-  createSession: (sessionData, token) => createApiInstance(token).post('/scheduler/sessions', sessionData),
-};
+export { api, authAPI, playlistAPI, schedulerAPI };
+export default api;
