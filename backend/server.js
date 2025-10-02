@@ -29,7 +29,7 @@ const logError = (error, req = null) => {
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5174',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
