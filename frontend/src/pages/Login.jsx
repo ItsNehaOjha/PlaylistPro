@@ -338,7 +338,7 @@ const Login = () => {
                     placeholder="Full Name"
                     value={formData.name || ''}
                     onChange={handleChange}
-                    required={isSignUp}
+                    required={Boolean(isSignUp)}
                     style={inputStyle}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#FF6B35';
@@ -444,7 +444,7 @@ const Login = () => {
                     placeholder="Confirm Password"
                     value={formData.confirmPassword || ''}
                     onChange={handleChange}
-                    required={isSignUp}
+                    required={Boolean(isSignUp)}
                     style={{ ...inputStyle, paddingRight: '48px' }}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#FF6B35';
