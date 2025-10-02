@@ -15,48 +15,74 @@ console.log('🔧 API Configuration:', {
   finalApiUrl: API_BASE_URL
 });
 
+// Cold start retry function for Render free tier
+const apiRequestWithRetry = async (axiosInstance, config, maxRetries = 3) => {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      console.log(`🔄 API Attempt ${attempt + 1}/${maxRetries}: ${config.method?.toUpperCase()} ${config.url}`);
+      const response = await axiosInstance(config);
+      
+      if (attempt > 0) {
+        console.log(`✅ API Success after ${attempt + 1} attempts (cold start resolved)`);
+      }
+      
+      return response;
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries - 1;
+      const isServerError = error.response?.status >= 500 || error.code === 'ECONNREFUSED' || !error.response;
+      
+      if (isServerError && !isLastAttempt) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Exponential backoff, max 5s
+        console.log(`⏳ Cold start detected, retrying in ${delay}ms... (attempt ${attempt + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      
+      throw error;
+    }
+  }
+};
+
+// Create axios instances with retry wrapper
+const createInstanceWithRetry = (baseConfig) => {
+  const instance = axios.create({
+    ...baseConfig,
+    baseURL: API_BASE_URL,
+    timeout: 30000, // 30s timeout for cold starts
+    withCredentials: true,
+  });
+
+  // Override request method to use retry logic
+  const originalRequest = instance.request;
+  instance.request = (config) => apiRequestWithRetry(originalRequest.bind(instance), config);
+
+  return instance;
+};
+
 // Create axios instances
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // Important for CORS with credentials
+const api = createInstanceWithRetry({
+  headers: { 'Content-Type': 'application/json' }
 });
 
-const authAPIInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+const authAPIInstance = createInstanceWithRetry({
+  headers: { 'Content-Type': 'application/json' }
 });
 
-const playlistAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+const playlistAPI = createInstanceWithRetry({
+  headers: { 'Content-Type': 'application/json' }
 });
 
-const schedulerAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+const schedulerAPI = createInstanceWithRetry({
+  headers: { 'Content-Type': 'application/json' }
 });
 
 // Function to create API instance with token
 const createApiInstance = (token) => {
-  return axios.create({
-    baseURL: API_BASE_URL,
+  return createInstanceWithRetry({
     headers: {
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : undefined,
-    },
-    withCredentials: true,
+    }
   });
 };
 
