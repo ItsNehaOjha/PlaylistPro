@@ -8,9 +8,9 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			host: true,
-			open: false, // Disable auto-open for faster startup
+			open: false,
 			hmr: {
-				overlay: false // Disable error overlay for speed
+				overlay: false
 			}
 		},
 		define: {
@@ -28,14 +28,19 @@ export default defineConfig(({ mode }) => {
 			},
 			chunkSizeWarningLimit: 1000,
 			sourcemap: false,
-			minify: 'esbuild' // Faster minification
+			minify: 'esbuild',
+			target: 'es2020',
+			cssCodeSplit: true,
+			assetsDir: 'assets',
+			outDir: 'dist'
 		},
 		optimizeDeps: {
 			include: ['react', 'react-dom', '@mui/material', 'lucide-react'],
-			force: true // Force pre-bundling
+			force: true
 		},
 		esbuild: {
-			target: 'es2020' // Modern target for better performance
-		}
+			target: 'es2020'
+		},
+		base: '/'
 	}
 })

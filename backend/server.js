@@ -14,10 +14,16 @@ const app = express();
 connectDB();
 
 // Middleware
-// Only enable CORS in development
-if (process.env.NODE_ENV !== 'production') {
+// Enable CORS for production with proper frontend URL
+if (process.env.NODE_ENV === 'production') {
   app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:5173", "http://localhost:4173"]
+    origin: [process.env.FRONTEND_URL || 'https://playlistpro.onrender.com'],
+    credentials: true
+  }));
+} else {
+  app.use(cors({
+    origin: ["http://localhost:3000", "http://localhost:5173", "http://localhost:4173"],
+    credentials: true
   }));
 }
 
@@ -60,10 +66,11 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
+// CRITICAL: Bind to 0.0.0.0 for Render deployment
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   if (process.env.NODE_ENV === 'production') {
-    console.log(`🌐 App available at http://localhost:${PORT}`);
+    console.log(`🌐 App available at https://playlistpro.onrender.com`);
   } else {
     console.log(`📱 Frontend should run on http://localhost:3000`);
     console.log(`🔗 API available at http://localhost:${PORT}`);
