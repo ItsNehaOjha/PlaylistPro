@@ -49,6 +49,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { confirmAction } from '../utils/confirmToast.jsx';
+import { createApiInstance } from '../utils/api'; // Use centralized API
 
 const DynamicScheduler = () => {
   const { user, token } = useAuth();
@@ -74,13 +75,8 @@ const DynamicScheduler = () => {
   const [previewData, setPreviewData] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // API configuration
-  const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  // API configuration - use centralized API
+  const api = createApiInstance(token);
 
   // Fetch playlists
   useEffect(() => {

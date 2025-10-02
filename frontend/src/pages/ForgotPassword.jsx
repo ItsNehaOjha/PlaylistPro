@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import axios from 'axios';
+import { authAPI } from '../utils/api'; // Use centralized API
 import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
@@ -27,9 +27,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-        email: email
-      });
+      const response = await authAPI.forgotPassword(email); // Use centralized API
       
       if (response.data.success) {
         setSuccess('Password reset link has been sent to your email address.');

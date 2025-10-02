@@ -183,7 +183,7 @@ const PlaylistTracker = () => {
 		setFetchStats(null);
 		setDayGroups([]);
 
-		const apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
+		const apiKey = import.meta.env.REACT_APP_YOUTUBE_API_KEY; // Fix environment variable name
 		if (!apiKey) {
 			setIsLoading(false);
 			setErrorMessage('YouTube API key is missing. Please set REACT_APP_YOUTUBE_API_KEY in your frontend .env file and restart the dev server.');

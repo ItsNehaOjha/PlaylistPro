@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useNavigate, Link as RouterLink, useParams } from 'react-router-dom';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import axios from 'axios';
+import { authAPI } from '../utils/api'; // Use centralized API
 import toast from 'react-hot-toast';
 
 const ResetPassword = () => {
@@ -51,10 +51,7 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
-        token: token,
-        password: formData.password
-      });
+      const response = await authAPI.resetPassword(token, formData.password); // Use centralized API
       
       if (response.data.success) {
         setSuccess('Password has been reset successfully. You can now login with your new password.');

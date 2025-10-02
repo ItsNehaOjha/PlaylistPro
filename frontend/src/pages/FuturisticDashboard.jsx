@@ -24,6 +24,7 @@ import {
 import BrainIcon from '../components/BrainIcon';
 import { CircularProgressRing } from '../components/FuturisticProgress';
 import axios from 'axios';
+import { createApiInstance } from '../utils/api'; // Use centralized API
 
 export default function FuturisticDashboard() {
   const { user, token } = useAuth();
@@ -39,13 +40,8 @@ export default function FuturisticDashboard() {
     { label: 'Achievements', value: '0', icon: Award, color: '#8B5CF6' },
   ]);
 
-  // API configuration
-  const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  // API configuration - use centralized API
+  const api = createApiInstance(token);
 
   // Fetch playlists and sessions, then calculate stats
   useEffect(() => {
