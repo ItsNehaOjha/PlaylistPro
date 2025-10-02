@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
 	return {
 		plugins: [react()],
 		server: {
-			port: 3000,
+			port: 5173,  // Changed from 3000 to 5173
 			host: true,
 			open: false,
 			hmr: {
