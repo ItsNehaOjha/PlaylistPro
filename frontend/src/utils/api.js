@@ -1,9 +1,18 @@
 import axios from 'axios';
 
 // Determine the API base URL based on environment
-const API_BASE_URL = import.meta.env.PROD 
+const API_BASE_URL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_API_URL || 'https://playlistpro-backend.onrender.com/api'  // Use full backend URL in production
   : import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
+// Debug logging to verify the URL
+console.log('🔧 API Configuration:', {
+  mode: import.meta.env.MODE,
+  isDev: import.meta.env.DEV,
+  isProd: import.meta.env.PROD,
+  viteApiUrl: import.meta.env.VITE_API_URL,
+  finalApiUrl: API_BASE_URL
+});
 
 // Create axios instances
 const api = axios.create({
