@@ -1,6 +1,22 @@
-# PlaylistPro
+# 🎯 PlaylistPro - Smart Learning Progress Tracker
 
-A comprehensive learning progress tracker that helps students and professionals manage their YouTube playlists and manual learning content with intelligent progress tracking, day-wise organization, and detailed analytics.
+<div align="center">
+  <img src="https://github.com/ItsNehaOjha/PlaylistPro/blob/main/screenshot.png" alt="PlaylistPro Dashboard" width="800"/>
+  
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-00D4FF?style=for-the-badge&logo=vercel)](https://playlistpro.onrender.com/)
+  [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/ItsNehaOjha/PlaylistPro)
+  [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+</div>
+
+## 📖 Overview
+
+**PlaylistPro** is a comprehensive learning progress tracker that transforms your YouTube playlists into structured learning paths. Master your exam preparation with organized study playlists, intelligent progress tracking, and smart scheduling. Turn YouTube videos into structured learning experiences with day-wise organization and detailed analytics.
+
+### 🌟 **Live Demo**
+- **Frontend**: [https://playlistpro.onrender.com/](https://playlistpro.onrender.com/)
+- **GitHub Repository**: [https://github.com/ItsNehaOjha/PlaylistPro](https://github.com/ItsNehaOjha/PlaylistPro)
+
+---
 
 ## ✨ Key Features
 
@@ -10,134 +26,233 @@ A comprehensive learning progress tracker that helps students and professionals 
 - **Day-wise Organization**: Automatically group content into manageable daily study sessions
 - **Dual Source Support**: Both YouTube playlists and manual content trackers
 - **Real-time Analytics**: Live progress statistics and completion insights
+- **Cold Start Resilience**: Automatic retry logic with exponential backoff for robust API calls
 
 ### 🔐 **User Management**
-- **Secure Authentication**: JWT-based login/registration system
+- **Secure Authentication**: JWT-based login/registration system with bcrypt password hashing
 - **Personal Dashboard**: Futuristic dashboard with dynamic progress insights
-- **User-specific Data**: All progress tied to individual user accounts
-- **Password Security**: bcrypt hashing with secure password reset
+- **User-specific Data**: All progress tied to individual user accounts with MongoDB storage
+- **Password Security**: Secure password reset functionality with email integration
 
 ### 📊 **Progress Analytics**
 - **Completion Statistics**: Track videos completed, days finished, overall percentage
-- **Study Streak Tracking**: Monitor consecutive study days
+- **Study Streak Tracking**: Monitor consecutive study days and learning momentum
 - **Study Time Calculation**: Automatic time tracking from session data
 - **Completed Playlists Counter**: Track fully completed learning paths
+- **Visual Progress Indicators**: Progress bars, completion badges, and motivational feedback
 
 ### 🎨 **User Experience**
-- **Modern UI**: Material-UI components with dark/light theme support
+- **Modern UI**: Material-UI components with futuristic dark theme design
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 - **Intuitive Navigation**: Tab-based playlist management with smooth transitions
-- **Visual Progress**: Progress bars, completion indicators, and motivational feedback
+- **Real-time Notifications**: React Hot Toast for instant feedback and updates
+- **Loading States**: Elegant loading spinners and skeleton screens
 
-## 🏗️ Tech Stack
+---
 
-### Backend
-- **Node.js** + **Express.js** - RESTful API server
+## 🏗️ Technology Stack
+
+### **Backend Technologies**
+- **Node.js** + **Express.js** - RESTful API server with middleware support
 - **MongoDB** with **Mongoose** - Document database with schema validation
-- **JWT Authentication** - Secure stateless authentication
+- **JWT Authentication** - Secure stateless authentication system
 - **YouTube Data API v3** - Real-time playlist and video data fetching
-- **bcrypt** - Password hashing and security
+- **bcryptjs** - Password hashing and security
 - **Express Validator** - Input validation and sanitization
-- **Nodemailer** - Email services for password reset
+- **Nodemailer** - Email services for password reset functionality
+- **Axios** - HTTP client for external API calls
+- **CORS** - Cross-origin resource sharing configuration
+- **Compression** - Response compression for better performance
 
-### Frontend
-- **React 18** - Modern React with hooks and context
-- **Vite** - Lightning-fast build tool and dev server
-- **Material-UI (MUI)** - Professional component library
+### **Frontend Technologies**
+- **React 18** - Modern React with hooks, context, and concurrent features
+- **Vite** - Lightning-fast build tool and development server
+- **Material-UI (MUI)** - Professional component library with theming
 - **React Router v6** - Client-side routing and navigation
-- **Axios** - HTTP client for API communication
+- **Axios** - HTTP client with retry logic and interceptors
 - **React Hot Toast** - Beautiful notification system
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Modern icon library
+- **Emotion** - CSS-in-JS styling solution
 
+### **DevOps & Deployment**
+- **Render** - Cloud hosting platform for both frontend and backend
+- **UptimeRobot** - Keep-alive monitoring to prevent cold starts
+- **Environment Variables** - Secure configuration management
+- **Git** - Version control with GitHub integration
 
+---
 
-# Quick Setup Guide for PlaylistPro Multi-Playlist Support
+## 🚀 Quick Start Guide
 
-## Backend Setup
+### **Prerequisites**
+- Node.js (v18.0.0 or higher)
+- npm (v8.0.0 or higher)
+- MongoDB (local installation or cloud instance)
+- YouTube Data API v3 key from Google Cloud Console
 
-1. Navigate to backend directory:
+### **Step 1: Clone the Repository**
 ```bash
+git clone https://github.com/ItsNehaOjha/PlaylistPro.git
+cd PlaylistPro
+```
+
+### **Step 2: Backend Setup**
+```bash
+# Navigate to backend directory
 cd backend
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
+
+# Create environment file
+cp env.example .env
 ```
 
-3. Create `.env` file with:
+**Configure Backend Environment Variables** (`.env`):
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/learnlog
-JWT_SECRET=your_super_secret_jwt_key_123
+MONGO_URI=mongodb://localhost:27017/playlistpro
+JWT_SECRET=your_super_secret_jwt_key_here_make_it_long_and_complex
 NODE_ENV=development
 YOUTUBE_API_KEY=your_youtube_data_api_v3_key_here
+FRONTEND_URL=http://localhost:5174
 ```
 
-### Step 2: Frontend Setup
+### **Step 3: Frontend Setup**
 ```bash
+# Navigate to frontend directory (from project root)
 cd frontend
+
+# Install dependencies
 npm install
+
+# Create environment file
+cp env.example .env
 ```
 
-Create `.env` file in frontend folder:
+**Configure Frontend Environment Variables** (`.env`):
 ```env
 VITE_API_URL=http://localhost:5000/api
-REACT_APP_YOUTUBE_API_KEY=your_youtube_data_api_v3_key_here
 ```
 
-### Step 3: Start Both Servers
+### **Step 4: Start Development Servers**
 
-**Terminal 1 (Backend):**
+**Terminal 1 - Backend Server:**
 ```bash
 cd backend
 npm run dev
 ```
 
-**Terminal 2 (Frontend):**
+**Terminal 2 - Frontend Server:**
 ```bash
 cd frontend
 npm run dev
 ```
 
-## 🌐 Access Your App
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+### **Step 5: Access Your Application**
+- **Frontend**: [http://localhost:5174](http://localhost:5174)
+- **Backend API**: [http://localhost:5000](http://localhost:5000)
+- **API Health Check**: [http://localhost:5000/health](http://localhost:5000/health)
 
-## 📝 Test the Multi-Playlist Features
-1. Open http://localhost:3000
-2. Click "Sign Up" to create an account
-3. Login with your credentials
-4. Navigate to "Playlists" from the dashboard
-5. Add your first YouTube playlist URL
-6. Watch as videos are automatically organized by day
-7. Track your progress across multiple playlists!
+---
 
-## ⚠️ Important Notes
-- **MongoDB Required**: Make sure MongoDB is running on your system
-- **YouTube API Key**: Required for fetching playlist data (get one from Google Cloud Console)
-- **Backend Port**: 5000, Frontend Port: 3000
-- **JWT Authentication**: Tokens expire in 30 days
-- **Password Security**: All passwords are hashed with bcrypt
-- **Multi-User Support**: Each user has their own playlists and progress
+## 🌐 Production Deployment
+
+### **Deploy to Render (Recommended)**
+
+#### **Backend Deployment**
+1. Create a new Web Service on [Render](https://render.com)
+2. Connect your GitHub repository
+3. Configure build settings:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+4. Add environment variables in Render dashboard
+5. Deploy and note your backend URL
+
+#### **Frontend Deployment**
+1. Create a new Static Site on Render
+2. Connect the same GitHub repository
+3. Configure build settings:
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build`
+   - **Publish Directory**: `dist`
+4. Add environment variables:
+   - `VITE_API_URL`: Your backend URL + `/api`
+5. Deploy your frontend
+
+#### **Keep-Alive Setup (Prevent Cold Starts)**
+1. Sign up for [UptimeRobot](https://uptimerobot.com) (free)
+2. Create a new HTTP monitor
+3. Set URL to: `https://your-backend-url.onrender.com/ping`
+4. Set monitoring interval to 5 minutes
+5. This keeps your backend warm and prevents cold starts
+
+---
 
 ## 🔑 YouTube API Setup
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Enable YouTube Data API v3
-4. Create credentials (API Key)
-5. Add the API key to both `.env` files
 
-## 🐛 Troubleshooting
-- **Backend fails to start**: Check MongoDB connection and YouTube API key
-- **Frontend can't connect**: Verify backend is running on port 5000
-- **Playlist fetch fails**: Check YouTube API key and quota limits
-- **Database errors**: Ensure MongoDB is running and accessible
-- **Check console**: Look for error messages in browser and terminal
+1. Visit [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the **YouTube Data API v3**
+4. Go to **Credentials** → **Create Credentials** → **API Key**
+5. Copy the API key and add it to your environment variables
+6. (Optional) Restrict the API key to YouTube Data API for security
 
-## ✨ New Features
-- **Multi-Playlist Support**: Add unlimited YouTube playlists
-- **Per-User Storage**: Each user has their own playlists and progress
-- **Real-time Updates**: Progress saved instantly to database
-- **Day-wise Organization**: Videos automatically grouped by study days
-- **Progress Tracking**: Visual progress bars and completion stats
-- **Private Video Handling**: Automatically detects and marks unavailable videos
+---
+
+## 📱 How to Use PlaylistPro
+
+### **Getting Started**
+1. **Sign Up**: Create your account with email and secure password
+2. **Login**: Access your personal dashboard
+3. **Add Playlists**: Paste YouTube playlist URLs to import content
+4. **Track Progress**: Mark videos as complete as you study
+5. **Monitor Analytics**: View your learning statistics and streaks
+
+### **Key Workflows**
+- **Import Playlist**: Copy any public YouTube playlist URL and paste it
+- **Daily Study**: Videos are automatically organized into daily study sessions
+- **Progress Tracking**: Click checkmarks to mark videos as completed
+- **Analytics Review**: Check your dashboard for completion statistics
+- **Multi-Playlist**: Manage multiple learning paths simultaneously
+
+---
+
+## 🛠️ Development
+
+### **Project Structure**
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Author
+
+**Neha Ojha**
+- GitHub: [@ItsNehaOjha](https://github.com/ItsNehaOjha)
+- LinkedIn: [Connect with me](https://linkedin.com/in/nehaojha)
+
+---
+
+## 🙏 Acknowledgments
+
+- YouTube Data API v3 for playlist data
+- Material-UI for beautiful components
+- Render for reliable hosting
+- MongoDB for flexible data storage
+- All contributors and users of PlaylistPro
+
+---
+
+<div align="center">
+  <p>Made with ❤️ for learners worldwide</p>
+  <p>
+    <a href="https://playlistpro.onrender.com/">🚀 Try PlaylistPro Now</a> |
+    <a href="https://github.com/ItsNehaOjha/PlaylistPro/issues">🐛 Report Bug</a> |
+    <a href="https://github.com/ItsNehaOjha/PlaylistPro/issues">💡 Request Feature</a>
+  </p>
+</div>
