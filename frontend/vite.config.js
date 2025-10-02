@@ -17,30 +17,25 @@ export default defineConfig(({ mode }) => {
 			'process.env.REACT_APP_YOUTUBE_API_KEY': JSON.stringify(env.REACT_APP_YOUTUBE_API_KEY)
 		},
 		build: {
+			// Ultra-fast build configuration
 			rollupOptions: {
 				output: {
-					manualChunks: {
-						'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-						'mui-vendor': ['@mui/material', '@emotion/react', '@emotion/styled'],
-						'utils-vendor': ['axios', 'react-hot-toast']
-					}
+					manualChunks: undefined
 				}
 			},
-			chunkSizeWarningLimit: 1000,
+			chunkSizeWarningLimit: 5000,
 			sourcemap: false,
-			minify: 'esbuild',
-			target: 'es2020',
-			cssCodeSplit: true,
-			assetsDir: 'assets',
-			outDir: 'dist'
+			minify: false, // Disable minification for speed
+			target: 'es2015',
+			cssCodeSplit: false,
+			outDir: 'dist',
+			reportCompressedSize: false
 		},
 		optimizeDeps: {
-			include: ['react', 'react-dom', '@mui/material', 'lucide-react'],
-			force: true
+			include: ['react', 'react-dom']
 		},
 		esbuild: {
-			target: 'es2020'
-		},
-		base: '/'
+			target: 'es2015'
+		}
 	}
 })
