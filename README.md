@@ -234,7 +234,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Neha Ojha**
 - GitHub: [@ItsNehaOjha](https://github.com/ItsNehaOjha)
-- LinkedIn: [Connect with me](https://linkedin.com/in/nehaojha)
+- LinkedIn: [Connect with me](https://www.linkedin.com/in/neha-ojha0028/)
 
 ---
 
