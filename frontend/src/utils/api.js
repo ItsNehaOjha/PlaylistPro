@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 // Determine the API base URL based on environment
-const API_BASE_URL = import.meta.env.MODE === 'production'
-  ? import.meta.env.VITE_API_URL || 'https://playlistpro-backend.onrender.com/api'  // Use full backend URL in production
-  : import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'production' 
+    ? 'https://playlistpro-backend.onrender.com/api'  // Replace with your actual backend URL
+    : 'http://localhost:5001/api');
 
 // Debug logging to verify the URL
 console.log('🔧 API Configuration:', {
@@ -20,6 +21,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Important for CORS with credentials
 });
 
 const authAPIInstance = axios.create({
@@ -27,6 +29,7 @@ const authAPIInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 const playlistAPI = axios.create({
@@ -34,6 +37,7 @@ const playlistAPI = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 const schedulerAPI = axios.create({
@@ -41,6 +45,7 @@ const schedulerAPI = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Function to create API instance with token
@@ -51,6 +56,7 @@ const createApiInstance = (token) => {
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : undefined,
     },
+    withCredentials: true,
   });
 };
 
@@ -67,10 +73,19 @@ const addAuthToken = (config) => {
 [api, authAPIInstance, playlistAPI, schedulerAPI].forEach(instance => {
   instance.interceptors.request.use(addAuthToken);
   
-  // Response interceptor for handling auth errors
+  // Enhanced response interceptor for production debugging
   instance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      console.log(`✅ API Success: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+      return response;
+    },
     (error) => {
+      console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        baseURL: error.config?.baseURL
+      });
+      
       if (error.response?.status === 401) {
         localStorage.removeItem('token');
         window.location.href = '/login';
@@ -90,7 +105,6 @@ const authAPI = {
     const response = await authAPIInstance.post('/auth/register', userData);
     return response;
   },
-  // Add other auth methods as needed
   forgotPassword: async (email) => {
     const response = await authAPIInstance.post('/auth/forgot-password', { email });
     return response;
