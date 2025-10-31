@@ -227,7 +227,7 @@ export default function FuturisticDashboard() {
     <Box sx={{ minHeight: '100vh', pt: 3, pb: 6 }}>
       <Container maxWidth="xl">
         {/* Hero Section */}
-        <Box sx={{ mb: 6, textAlign: 'center' }}>
+        <Box sx={{ mb: { xs: 4, md: 6 }, textAlign: 'center', px: { xs: 2, sm: 0 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
             <BrainIcon size="xl" animated={true} mood="excited" />
           </Box>
@@ -235,11 +235,12 @@ export default function FuturisticDashboard() {
           <Typography
             variant="h1"
             sx={{
-              mb: 2,
+              mb: { xs: 1.5, md: 2 },
               background: 'linear-gradient(135deg, #00D4FF 0%, #FF6B35 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontWeight: 800,
+              fontSize: 'clamp(1.75rem, 5.5vw, 3.5rem)'
             }}
           >
             Welcome to PlaylistPro
@@ -249,10 +250,12 @@ export default function FuturisticDashboard() {
             variant="h5"
             sx={{
               color: '#94A3B8',
-              mb: 4,
+              mb: { xs: 3, md: 4 },
               maxWidth: '600px',
               mx: 'auto',
               lineHeight: 1.6,
+              px: { xs: 1, sm: 0 },
+              fontSize: 'clamp(0.95rem, 2.5vw, 1.25rem)'
             }}
           >
             Easily track your YouTube playlists, auto-schedule daily study sessions, and stay consistent so you can hit exam deadlines without last-minute cramming.
@@ -262,10 +265,10 @@ export default function FuturisticDashboard() {
         {/* Learning Progress Section */}
         <Box
           sx={{
-            mb: 6,
+            mb: { xs: 4, md: 6 },
             mx: 'auto',
             maxWidth: '900px',
-            p: 4,
+            p: { xs: 2, sm: 3, md: 4 },
             borderRadius: 3,
             background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(16, 185, 129, 0.1) 50%, rgba(245, 158, 11, 0.1) 100%)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -281,12 +284,13 @@ export default function FuturisticDashboard() {
           <Typography
             variant="h3"
             sx={{
-              mb: 3,
+              mb: { xs: 2, md: 3 },
               textAlign: 'center',
               background: 'linear-gradient(135deg, #00D4FF 0%, #10B981 50%, #F59E0B 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontWeight: 700,
+              fontSize: 'clamp(1.25rem, 4vw, 2.25rem)'
             }}
           >
             Your Learning Progress
@@ -296,20 +300,21 @@ export default function FuturisticDashboard() {
             variant="body1"
             sx={{
               color: '#94A3B8',
-              mb: 4,
+              mb: { xs: 3, md: 4 },
               textAlign: 'center',
               fontStyle: 'italic',
+              px: { xs: 1, sm: 0 }
             }}
           >
             Real-time insights from your study activities
           </Typography>
 
           {/* Quick Stats */}
-          <Grid container spacing={3} sx={{ maxWidth: '800px', mx: 'auto' }}>
+          <Grid container spacing={3} sx={{ maxWidth: '800px', mx: 'auto', px: { xs: 1, sm: 0 } }}>
             {quickStats.map((stat, index) => (
-              <Grid item xs={6} md={3} key={index}>
+              <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card className="glass-card hover:scale-105 transition-transform duration-300">
-                  <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                  <CardContent sx={{ textAlign: 'center', py: { xs: 2.5, md: 3 } }}>
                     <stat.icon 
                       size={32} 
                       color={stat.color}
@@ -321,11 +326,15 @@ export default function FuturisticDashboard() {
                         fontWeight: 700,
                         color: stat.color,
                         mb: 0.5,
+                        fontSize: 'clamp(1.125rem, 4.2vw, 1.75rem)'
                       }}
                     >
                       {stat.value}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#94A3B8' }}>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ color: '#94A3B8', fontSize: 'clamp(0.8rem, 2.8vw, 0.95rem)' }}
+                    >
                       {stat.label}
                     </Typography>
                   </CardContent>
@@ -339,16 +348,17 @@ export default function FuturisticDashboard() {
         <Typography
           variant="h2"
           sx={{
-            mb: 4,
+            mb: { xs: 3, md: 4 },
             textAlign: 'center',
             color: '#E2E8F0',
+            fontSize: 'clamp(1.5rem, 4.5vw, 2.5rem)'
           }}
         >
           Learning Modules
         </Typography>
 
         {/* First Row - Playlist Tracker Only */}
-        <Grid container spacing={4} sx={{ mb: 6, justifyContent: 'center' }}>
+        <Grid container spacing={4} sx={{ mb: { xs: 4, md: 6 }, justifyContent: 'center', px: { xs: 1, sm: 0 } }}>
           {features.slice(0, 1).map((feature, index) => {
             const Icon = feature.icon;
             const progressPercentage = feature.stats.total > 0 ? (feature.stats.completed / feature.stats.total) * 100 : 0;
@@ -389,19 +399,19 @@ export default function FuturisticDashboard() {
                     }}
                   />
                   
-                  <CardContent sx={{ p: 5, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <CardContent sx={{ p: { xs: 3, sm: 4, md: 5 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
                     {/* Header */}
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 4 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: { xs: 'center', md: 'flex-start' }, justifyContent: 'space-between', mb: { xs: 3, md: 4 }, gap: { xs: 2, md: 0 }, flexDirection: { xs: 'column', sm: 'row' } }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, md: 3 } }}>
                         <Box
                           sx={{
-                            p: 3,
+                            p: { xs: 2, md: 3 },
                             borderRadius: '16px',
                             background: `${feature.color}20`,
                             border: `2px solid ${feature.color}40`,
                           }}
                         >
-                          <Icon size={40} color={feature.color} />
+                          <Icon size={34} color={feature.color} />
                         </Box>
                         <Box>
                           <Typography
@@ -410,6 +420,7 @@ export default function FuturisticDashboard() {
                               fontWeight: 700,
                               color: '#E2E8F0',
                               mb: 1,
+                              fontSize: 'clamp(1.25rem, 4.5vw, 2rem)'
                             }}
                           >
                             {feature.title}
@@ -421,19 +432,21 @@ export default function FuturisticDashboard() {
                               backgroundColor: `${feature.color}30`,
                               color: feature.color,
                               border: `1px solid ${feature.color}60`,
-                              fontSize: '0.8rem',
+                              fontSize: { xs: '0.75rem', md: '0.8rem' },
                               fontWeight: 600,
                             }}
                           />
                         </Box>
                       </Box>
-                      
-                      <CircularProgressRing
-                        value={progressPercentage}
-                        size={80}
-                        thickness={6}
-                        showPercentage={true}
-                      />
+
+                      <Box sx={{ transform: { xs: 'scale(0.9)', md: 'none' } }}>
+                        <CircularProgressRing
+                          value={progressPercentage}
+                          size={80}
+                          thickness={6}
+                          showPercentage={true}
+                        />
+                      </Box>
                     </Box>
 
                     {/* Description */}
@@ -441,18 +454,19 @@ export default function FuturisticDashboard() {
                       variant="body1"
                       sx={{
                         color: '#94A3B8',
-                        mb: 4,
+                        mb: { xs: 3, md: 4 },
                         flexGrow: 1,
                         lineHeight: 1.7,
-                        fontSize: '1.1rem',
+                        fontSize: 'clamp(0.95rem, 2.8vw, 1.1rem)',
+                        textAlign: { xs: 'center', sm: 'left' }
                       }}
                     >
                       {feature.description}
                     </Typography>
 
                     {/* Stats */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                      <Typography variant="h6" sx={{ color: '#94A3B8' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 3, md: 4 }, gap: { xs: 1.5, md: 0 }, flexWrap: 'wrap' }}>
+                      <Typography variant="h6" sx={{ color: '#94A3B8', fontSize: 'clamp(0.95rem, 2.8vw, 1.25rem)' }}>
                         Progress: {feature.stats.completed}/{feature.stats.total}
                       </Typography>
                       <Typography
@@ -460,6 +474,7 @@ export default function FuturisticDashboard() {
                         sx={{
                           color: feature.color,
                           fontWeight: 700,
+                          fontSize: 'clamp(0.95rem, 2.8vw, 1.25rem)'
                         }}
                       >
                         {Math.round(progressPercentage)}% Complete
@@ -478,10 +493,12 @@ export default function FuturisticDashboard() {
                           : 'rgba(148, 163, 184, 0.1)',
                         color: feature.available ? '#000' : '#64748B',
                         fontWeight: 600,
-                        py: 1.5,
+                        py: 1.2,
                         borderRadius: '12px',
                         textTransform: 'none',
-                        fontSize: '1.1rem',
+                        fontSize: 'clamp(1rem, 3.8vw, 1.1rem)',
+                        width: { xs: '100%', sm: 'auto' },
+                        alignSelf: { xs: 'stretch', sm: 'center' },
                         '&:hover': {
                           background: feature.available 
                             ? `linear-gradient(135deg, ${feature.color}DD 0%, ${feature.color}AA 100%)`
