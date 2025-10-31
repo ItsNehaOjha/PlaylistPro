@@ -79,22 +79,22 @@ const Login = () => {
   const containerStyle = {
     minHeight: '100vh',
     display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
     fontFamily: 'Inter, sans-serif'
   };
 
   const leftSideStyle = {
-    display: 'none',
     width: '50%',
     background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)',
     position: 'relative',
-    overflow: 'hidden',
-    '@media (minWidth: 1024)': {
-      display: 'flex'
-    }
+    overflow: 'hidden'
   };
 
   const rightSideStyle = {
     width: '100%',
+    minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -174,7 +174,7 @@ const Login = () => {
   return (
     <div style={containerStyle}>
       {/* Left Side - Hero Section */}
-      <div style={leftSideStyle}>
+      <div className="left-side" style={leftSideStyle}>
         <div style={{
           position: 'relative',
           zIndex: 2,
@@ -233,7 +233,7 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login/Signup Form */}
-      <div style={rightSideStyle}>
+      <div className="right-side" style={rightSideStyle}>
         {/* Floating Particles */}
         <div style={{
           position: 'absolute',
@@ -545,7 +545,7 @@ const Login = () => {
             </form>
 
             {/* Social Login */}
-           
+          
 
             {/* Footer */}
             <div style={{ marginTop: '2rem', textAlign: 'center' }}>
@@ -565,6 +565,9 @@ const Login = () => {
       </div>
 
       <style>{`
+        .left-side { display: none; }
+        .right-side { width: 100%; display: flex; align-items: center; justify-content: center; }
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(180deg); }
@@ -575,13 +578,14 @@ const Login = () => {
           100% { transform: rotate(360deg); }
         }
         
-        @media (min-width: 1024px) {
-          .left-side {
-            display: flex !important;
-          }
-          .right-side {
-            width: 50% !important;
-          }
+        /* Use two-column layout only on very wide screens */
+        @media (min-width: 1280px) {
+          .left-side { display: flex !important; }
+          .right-side { width: 50% !important; min-height: 100vh; }
+        }
+
+        @media (max-width: 599px) {
+          .right-side { padding: 1.25rem !important; }
         }
       `}</style>
     </div>
