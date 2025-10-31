@@ -1,0 +1,32 @@
+{
+  "name": "PlaylistPro",
+  "short_name": "PlaylistPro",
+  "description": "Transform YouTube playlists into structured learning paths.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#1976d2",
+  "dir": "ltr",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/fevicon/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/fevicon/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/fevicon/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
