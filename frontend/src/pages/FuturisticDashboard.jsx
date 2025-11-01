@@ -314,7 +314,14 @@ export default function FuturisticDashboard() {
           </Typography>
 
           {/* Quick Stats */}
-          <Grid container spacing={3} sx={{ width: '100%', maxWidth: 800, mx: 'auto' }}>
+          <Box sx={{ width: '100%', maxWidth: 800, mx: 'auto', px: { xs: 1, sm: 0 } }}>
+          <Grid 
+            container 
+            rowSpacing={{ xs: 2, sm: 3 }} 
+            columnSpacing={{ xs: 2, sm: 3 }} 
+            disableEqualOverflow 
+            sx={{ width: '100%', mx: 'auto', alignItems: 'stretch' }}
+          >
             {quickStats.map((stat, index) => (
               <Grid item xs={12} sm={6} md={3} key={index} sx={{ display: 'flex' }}>
                 <Card className="glass-card hover:scale-105 transition-transform duration-300" sx={{ width: '100%', mx: 'auto' }}>
@@ -346,6 +353,7 @@ export default function FuturisticDashboard() {
               </Grid>
             ))}
           </Grid>
+          </Box>
           </Box>
         </Box>
 
