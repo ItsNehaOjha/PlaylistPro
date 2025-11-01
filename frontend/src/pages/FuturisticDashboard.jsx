@@ -225,7 +225,7 @@ export default function FuturisticDashboard() {
 
   return (
     <Box sx={{ minHeight: '100vh', pt: 3, pb: 6 }}>
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" disableGutters sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Hero Section */}
         <Box sx={{ mb: { xs: 4, md: 6 }, textAlign: 'center', px: { xs: 2, sm: 0 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
@@ -263,24 +263,26 @@ export default function FuturisticDashboard() {
         </Box>
 
         {/* Learning Progress Section */}
-        <Box
-          sx={{
-            mb: { xs: 4, md: 6 },
-            mx: 'auto',
-            maxWidth: '900px',
-            p: { xs: 2, sm: 3, md: 4 },
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(16, 185, 129, 0.1) 50%, rgba(245, 158, 11, 0.1) 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-          }}
-        >
+        <Box sx={{ display: 'flex', justifyContent: 'center', px: { xs: 2, sm: 0 } }}>
+          <Box
+            sx={{
+              mb: { xs: 4, md: 6 },
+              width: '100%',
+              maxWidth: 900,
+              p: { xs: 2, sm: 3, md: 4 },
+              borderRadius: 3,
+              background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(16, 185, 129, 0.1) 50%, rgba(245, 158, 11, 0.1) 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              mx: 'auto'
+            }}
+          >
           <Typography
             variant="h3"
             sx={{
@@ -310,7 +312,7 @@ export default function FuturisticDashboard() {
           </Typography>
 
           {/* Quick Stats */}
-          <Grid container spacing={3} sx={{ maxWidth: '800px', mx: 'auto', px: { xs: 1, sm: 0 } }}>
+          <Grid container spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
             {quickStats.map((stat, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card className="glass-card hover:scale-105 transition-transform duration-300">
@@ -342,6 +344,7 @@ export default function FuturisticDashboard() {
               </Grid>
             ))}
           </Grid>
+          </Box>
         </Box>
 
         {/* Features Grid */}
