@@ -224,7 +224,7 @@ export default function FuturisticDashboard() {
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', pt: 3, pb: 6 }}>
+    <Box sx={{ minHeight: '100vh', pt: 3, pb: 6, overflowX: 'hidden' }}>
       <Container maxWidth="xl" disableGutters sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Hero Section */}
         <Box sx={{ mb: { xs: 4, md: 6 }, textAlign: 'center', px: { xs: 2, sm: 0 } }}>
@@ -263,13 +263,14 @@ export default function FuturisticDashboard() {
         </Box>
 
         {/* Learning Progress Section */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', px: { xs: 2, sm: 0 } }}>
+        <Box sx={{ display: 'grid', placeItems: 'center', px: { xs: 1.5, sm: 0 }, width: '100%' }}>
           <Box
             sx={{
               mb: { xs: 4, md: 6 },
               width: '100%',
               maxWidth: 900,
-              p: { xs: 2, sm: 3, md: 4 },
+              boxSizing: 'border-box',
+              p: { xs: 1.25, sm: 3, md: 4 },
               borderRadius: 3,
               background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(16, 185, 129, 0.1) 50%, rgba(245, 158, 11, 0.1) 100%)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -280,7 +281,8 @@ export default function FuturisticDashboard() {
               alignItems: 'center',
               justifyContent: 'center',
               textAlign: 'center',
-              mx: 'auto'
+              mx: 'auto',
+              alignSelf: 'center'
             }}
           >
           <Typography
@@ -312,10 +314,10 @@ export default function FuturisticDashboard() {
           </Typography>
 
           {/* Quick Stats */}
-          <Grid container spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
+          <Grid container spacing={3} sx={{ width: '100%', maxWidth: 800, mx: 'auto' }}>
             {quickStats.map((stat, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Card className="glass-card hover:scale-105 transition-transform duration-300">
+              <Grid item xs={12} sm={6} md={3} key={index} sx={{ display: 'flex' }}>
+                <Card className="glass-card hover:scale-105 transition-transform duration-300" sx={{ width: '100%', mx: 'auto' }}>
                   <CardContent sx={{ textAlign: 'center', py: { xs: 2.5, md: 3 } }}>
                     <stat.icon 
                       size={32} 
