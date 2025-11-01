@@ -59,9 +59,13 @@ const FuturisticNavbar = () => {
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(0, 212, 255, 0.2)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        width: '100%'
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
+      <Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+        {/* Left spacer for mobile centering */}
+        <Box sx={{ width: 48, display: { xs: 'block', md: 'none' } }} />
+
         {/* Logo Section */}
         <Box 
           sx={{ 
@@ -69,6 +73,8 @@ const FuturisticNavbar = () => {
             alignItems: 'center', 
             gap: 2,
             cursor: 'pointer',
+            flexGrow: { xs: 1, md: 0 },
+            justifyContent: { xs: 'center', md: 'flex-start' }
           }}
           onClick={() => navigate('/dashboard')}
         >
@@ -167,6 +173,9 @@ const FuturisticNavbar = () => {
                 borderRadius: '12px',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
                 mt: 1,
+                maxWidth: 'calc(100vw - 24px)',
+                width: 260,
+                overflow: 'hidden'
               },
               '& .MuiMenuItem-root': {
                 color: '#E2E8F0',
